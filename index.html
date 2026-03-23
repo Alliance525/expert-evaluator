@@ -215,6 +215,23 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
 .proj-bar-text{flex:1;font-size:12px;color:var(--teal);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .proj-bar-hint{font-size:11px;color:var(--text-dim);}
 
+/* ──── BATCH UPLOAD ZONE ──── */
+.batch-upload-zone{
+  border:2px dashed var(--wire2);border-radius:var(--r-lg);
+  padding:28px 20px;text-align:center;cursor:pointer;
+  transition:all .2s;margin-bottom:12px;background:var(--lift);
+}
+.batch-upload-zone:hover,.batch-upload-zone.drag-over{
+  border-color:var(--teal);background:rgba(0,157,142,.05);
+}
+.buz-icon{font-size:28px;margin-bottom:8px;}
+.buz-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.buz-sub{font-size:12px;color:var(--text-dim);}
+.batch-upload-prog{
+  padding:10px 14px;background:var(--lift);border:1px solid var(--wire);
+  border-radius:var(--r);margin-bottom:12px;
+}
+
 /* ──── BATCH MODE ──── */
 .batch-expert{
   background:var(--lift);border:1px solid var(--wire2);
@@ -243,6 +260,12 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
 }
 .be-bg:focus{border-color:var(--teal);}
 .be-bg::placeholder{color:var(--text-dim);}
+.be-pdf-lbl{
+  width:26px;height:26px;border-radius:6px;border:1px solid var(--wire2);
+  cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .15s;background:var(--lift);
+}
+.be-pdf-lbl:hover{border-color:var(--teal);background:rgba(0,157,142,.08);}
 .be-del{width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;font-size:11px;background:rgba(244,63,94,.08);color:#f87171;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
 .be-del:hover{background:rgba(244,63,94,.2);}
 .batch-prog{
@@ -541,6 +564,18 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
 
   <!-- 批量模式 -->
   <div id="batchMode" style="display:none">
+    <!-- 批量上传 PDF -->
+    <div class="batch-upload-zone" id="batchUploadZone" onclick="document.getElementById('batchPdfInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+      <input type="file" id="batchPdfInput" accept=".pdf" multiple style="display:none" onchange="handleBatchPDF(this.files)">
+      <div class="buz-icon">📄</div>
+      <div class="buz-title">批量上传专家简历</div>
+      <div class="buz-sub">点击选择多个 PDF，或将文件拖拽到此处</div>
+    </div>
+    <div class="batch-upload-prog" id="batchUploadProg" style="display:none">
+      <span class="bp-text" id="batchUploadText">解析中…</span>
+      <div class="bp-bar" style="margin-top:6px"><div class="bp-fill" id="batchUploadFill" style="width:0%"></div></div>
+    </div>
+
     <div class="batch-prog" id="batchProg">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:13px;font-weight:600;color:var(--text)">批量评估进度</span>
@@ -551,9 +586,10 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
 
     <div id="batchList"></div>
 
-    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-      <button class="btn btn-ghost" onclick="addBatchExpert()" style="font-size:13px">＋ 添加专家</button>
-      <button class="btn btn-primary" id="batchRunBtn" onclick="runBatch()">→ 开始批量评估 <span id="batchCount">0</span> 位</button>
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-ghost" onclick="addBatchExpert()" style="font-size:13px">＋ 手动添加</button>
+      <button class="btn btn-ghost" onclick="clearBatch()" style="font-size:13px">清空列表</button>
+      <button class="btn btn-primary" id="batchRunBtn" onclick="runBatch()" style="margin-left:auto">→ 开始批量评估 <span id="batchCount">0</span> 位</button>
     </div>
     <div class="err" id="batchErrBox" style="margin-top:12px">⚠ <span id="batchErrMsg"></span></div>
   </div>
@@ -833,11 +869,15 @@ function renderBatchList() {
       <div class="be-head">
         <input class="be-name" placeholder="专家姓名（可选）" value="${esc(e.name)}"
           oninput="updateBatchExpert('${e.id}','name',this.value)" ${disabled}/>
+        <label class="be-pdf-lbl" title="上传此专家的 PDF 简历" ${disabled?'style="opacity:.4;pointer-events:none"':''}>
+          📄
+          <input type="file" accept=".pdf" style="display:none" onchange="uploadBatchPDF('${e.id}',this)">
+        </label>
         <span class="be-status ${stClass}">${stText}</span>
         <button class="be-del" onclick="removeBatchExpert('${e.id}')" ${disabled}>✕</button>
       </div>
       <textarea class="be-bg" rows="3"
-        placeholder="粘贴专家简历或背景描述..."
+        placeholder="粘贴专家简历或背景描述，或点击 📄 上传 PDF..."
         oninput="updateBatchExpert('${e.id}','bg',this.value)"
         ${disabled}>${esc(e.bg)}</textarea>
     </div>`;
@@ -900,6 +940,84 @@ function updateBatchProgress(done, total, currentName) {
   document.getElementById('bpText').textContent = currentName
     ? `正在评估：${currentName}（${done+1}/${total}）`
     : `已完成 ${done}/${total}`;
+}
+
+function clearBatch() {
+  if (batchRunning) return;
+  batchExperts = [];
+  renderBatchList();
+}
+
+// 拖拽支持
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('batchUploadZone').classList.add('drag-over');
+}
+function onDragLeave(e) {
+  document.getElementById('batchUploadZone').classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('batchUploadZone').classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+  if (files.length) handleBatchPDF(files);
+}
+
+// 批量上传多个 PDF
+async function handleBatchPDF(files) {
+  if (!files || !files.length) return;
+  const fileArr = Array.from(files);
+  const progWrap = document.getElementById('batchUploadProg');
+  const progText = document.getElementById('batchUploadText');
+  const progFill = document.getElementById('batchUploadFill');
+  progWrap.style.display = 'block';
+
+  for (let i = 0; i < fileArr.length; i++) {
+    const file = fileArr[i];
+    progText.textContent = `解析中 ${i+1}/${fileArr.length}：${file.name}`;
+    progFill.style.width = ((i / fileArr.length) * 100) + '%';
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const r = await fetch('/parse-pdf', {method:'POST', body:fd});
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.detail);
+      // 用文件名（去掉.pdf）作为初始姓名
+      const nameFromFile = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g,' ');
+      const id = 'be_' + Date.now() + '_' + i;
+      batchExperts.push({id, name: nameFromFile, bg: data.text, status:'pending'});
+    } catch(e) {
+      const id = 'be_err_' + Date.now() + '_' + i;
+      batchExperts.push({id, name: file.name, bg: '', status:'failed'});
+    }
+    renderBatchList();
+  }
+
+  progFill.style.width = '100%';
+  progText.textContent = `✓ 已解析 ${fileArr.length} 个文件`;
+  setTimeout(() => { progWrap.style.display = 'none'; }, 2000);
+  document.getElementById('batchPdfInput').value = '';
+}
+
+// 单个条目的 PDF 上传
+async function uploadBatchPDF(expertId, input) {
+  const file = input.files[0]; if (!file) return;
+  const expert = batchExperts.find(e => e.id === expertId);
+  if (!expert) return;
+  const lbl = input.parentElement;
+  lbl.textContent = '⏳';
+  try {
+    const fd = new FormData(); fd.append('file', file);
+    const r = await fetch('/parse-pdf', {method:'POST', body:fd});
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail);
+    expert.bg = data.text;
+    if (!expert.name) expert.name = file.name.replace(/\.pdf$/i,'').replace(/[-_]/g,' ');
+    renderBatchList();
+  } catch(e) {
+    alert('PDF 解析失败：' + e.message);
+    lbl.textContent = '📄';
+  }
+  input.value = '';
 }
 
 function showBatchErr(m) {

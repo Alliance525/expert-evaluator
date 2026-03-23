@@ -3,27 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>专家能力评估</title>
+<title>LabelEase · 专家能力评估</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --ink:#07090f;
-  --surface:#0d1117;
-  --panel:#111827;
-  --lift:#1a2333;
-  --wire:#1e2d42;
-  --wire2:#253447;
-  --teal:#00d9c0;
-  --teal-dim:rgba(0,217,192,.12);
-  --teal-glow:rgba(0,217,192,.25);
-  --amber:#f59e0b;
-  --red:#f43f5e;
-  --text:#e2e8f0;
-  --text-mid:#7d93b2;
-  --text-dim:#3d5166;
+  --ink:#f0f4f8;
+  --surface:#e8edf3;
+  --panel:#ffffff;
+  --lift:#f5f7fa;
+  --wire:#dde3ec;
+  --wire2:#c8d0dc;
+  --teal:#009d8e;
+  --teal-bright:#00b8a6;
+  --teal-dim:rgba(0,157,142,.1);
+  --teal-glow:rgba(0,157,142,.2);
+  --amber:#d97706;
+  --red:#e11d48;
+  --violet:#4f46e5;
+  --text:#0f172a;
+  --text-mid:#475569;
+  --text-dim:#94a3b8;
   --r:10px;
   --r-lg:16px;
 }
@@ -33,8 +35,7 @@ body{
   background:var(--ink);
   color:var(--text);
   min-height:100vh;
-  /* subtle dot grid */
-  background-image:radial-gradient(circle,rgba(0,217,192,.07) 1px,transparent 1px);
+  background-image:radial-gradient(circle,rgba(0,157,142,.08) 1px,transparent 1px);
   background-size:28px 28px;
 }
 
@@ -42,509 +43,485 @@ body{
 header{
   position:relative;
   border-bottom:1px solid var(--wire);
-  background:linear-gradient(180deg,rgba(0,217,192,.04) 0%,transparent 100%);
-  padding:40px 32px 32px;
+  background:linear-gradient(180deg,rgba(0,157,142,.06) 0%,transparent 100%);
+  padding:24px 32px 24px;
   overflow:hidden;
 }
 header::before{
-  content:'';
-  position:absolute;
-  top:-60px;left:50%;
-  transform:translateX(-50%);
-  width:600px;height:200px;
-  background:radial-gradient(ellipse,rgba(0,217,192,.15) 0%,transparent 70%);
+  content:'';position:absolute;top:-60px;left:50%;
+  transform:translateX(-50%);width:600px;height:200px;
+  background:radial-gradient(ellipse,rgba(0,157,142,.1) 0%,transparent 70%);
   pointer-events:none;
 }
+.header-inner{
+  max-width:1180px;margin:0 auto;
+  display:flex;align-items:center;gap:0;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.brand-logo{
+  width:36px;height:36px;border-radius:9px;
+  background:linear-gradient(135deg,var(--teal) 0%,#00c4b0 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;
+  color:#fff;letter-spacing:-.02em;
+  box-shadow:0 2px 12px rgba(0,157,142,.35);
+  flex-shrink:0;
+}
+.brand-name{
+  font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;
+  color:#fff;letter-spacing:-.01em;
+}
+.brand-name span{color:var(--teal);}
+.brand-tag{
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;
+  color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,217,192,.2);
+  padding:1px 6px;border-radius:3px;letter-spacing:.08em;margin-left:4px;
+  vertical-align:middle;
+}
+.header-center{flex:1;text-align:center;padding:0 24px;}
 .h-eyebrow{
   display:inline-flex;align-items:center;gap:8px;
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;font-weight:600;
-  color:var(--teal);letter-spacing:.15em;
-  text-transform:uppercase;margin-bottom:20px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+  color:var(--teal);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;
 }
-.h-eyebrow::before{content:'';width:24px;height:1px;background:var(--teal);}
-.h-eyebrow::after{content:'';width:24px;height:1px;background:var(--teal);}
-
+.h-eyebrow::before,.h-eyebrow::after{content:'';width:20px;height:1px;background:var(--teal);}
 header h1{
-  font-family:'Instrument Serif',serif;
-  font-size:clamp(32px,5vw,52px);
-  font-weight:400;
-  font-style:italic;
-  letter-spacing:-.01em;
-  line-height:1.1;
-  margin-bottom:12px;
-  color:#fff;
+  font-family:'Instrument Serif',serif;font-size:clamp(24px,3.5vw,40px);
+  font-weight:400;font-style:italic;letter-spacing:-.01em;line-height:1.1;
+  margin-bottom:6px;color:var(--text);
 }
-header h1 em{
-  font-style:normal;
-  color:var(--teal);
-}
-header p{
-  font-size:14px;
-  color:var(--text-mid);
-  letter-spacing:.02em;
-  max-width:500px;
-  margin:0 auto;
-  text-align:center;
-}
+header h1 em{font-style:normal;color:var(--teal);}
+header p{font-size:12px;color:var(--text-mid);letter-spacing:.02em;}
+.header-right{flex-shrink:0;width:120px;}
 
-.container{max-width:1180px;margin:0 auto;padding:36px 24px 80px;}
+.container{max-width:1180px;margin:0 auto;padding:28px 24px 80px;}
 
-/* ──── SECTION HEADER ──── */
-.s-head{
-  display:flex;align-items:center;gap:12px;
-  margin-bottom:16px;
-}
+/* ──── SECTION HEADERS ──── */
+.s-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
 .s-num{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;font-weight:700;
-  color:var(--teal);
-  background:var(--teal-dim);
-  border:1px solid rgba(0,217,192,.2);
-  border-radius:4px;
-  padding:2px 8px;
-  letter-spacing:.05em;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,217,192,.2);
+  border-radius:4px;padding:2px 8px;letter-spacing:.05em;
 }
-.s-title{
-  font-size:13px;font-weight:600;
-  color:var(--text-mid);
-  text-transform:uppercase;
-  letter-spacing:.08em;
-}
-
-/* ──── GRID ──── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-@media(max-width:800px){.g2{grid-template-columns:1fr;}}
+.s-title{font-size:13px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:.08em;}
 
 /* ──── PANEL ──── */
 .panel{
-  background:var(--panel);
-  border:1px solid var(--wire);
-  border-radius:var(--r-lg);
-  padding:22px;
-  position:relative;
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r-lg);padding:20px;position:relative;
 }
 .panel::before{
-  content:'';
-  position:absolute;
-  inset:0;border-radius:var(--r-lg);
-  background:linear-gradient(135deg,rgba(0,217,192,.03) 0%,transparent 50%);
+  content:'';position:absolute;inset:0;border-radius:var(--r-lg);
+  background:linear-gradient(135deg,rgba(0,157,142,.02) 0%,transparent 50%);
   pointer-events:none;
 }
-
 .panel-label{
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:600;
-  color:var(--text-dim);
-  text-transform:uppercase;letter-spacing:.12em;
-  margin-bottom:10px;
-  display:flex;justify-content:space-between;align-items:center;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+  color:var(--text-dim);text-transform:uppercase;letter-spacing:.12em;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
 }
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:800px){.g2{grid-template-columns:1fr;}}
 
 /* ──── INPUTS ──── */
 textarea,input[type=text]{
-  width:100%;
-  background:var(--lift);
-  border:1px solid var(--wire2);
-  border-radius:var(--r);
-  padding:13px 15px;
-  color:var(--text);
-  font-size:13px;font-family:'DM Sans',sans-serif;
-  outline:none;resize:vertical;line-height:1.7;
-  transition:border-color .2s,box-shadow .2s;
+  width:100%;background:var(--lift);border:1px solid var(--wire2);
+  border-radius:var(--r);padding:11px 14px;color:var(--text);
+  font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;
+  line-height:1.7;transition:border-color .2s,box-shadow .2s;
 }
-textarea:focus,input:focus{
-  border-color:var(--teal);
-  box-shadow:0 0 0 3px var(--teal-glow);
-}
+textarea:focus,input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow);}
 textarea::placeholder,input::placeholder{color:var(--text-dim);}
-.char-c{font-size:11px;color:var(--text-dim);text-align:right;margin-top:5px;font-family:'JetBrains Mono',monospace;}
+.char-c{font-size:11px;color:var(--text-dim);text-align:right;margin-top:4px;font-family:'JetBrains Mono',monospace;}
+
+.name-input{
+  margin-bottom:10px;
+}
+.name-input input{
+  font-size:14px;font-weight:600;padding:9px 14px;
+  border-color:rgba(0,217,192,.2);
+}
+.name-input input:focus{border-color:var(--teal);}
 
 .pdf-lbl{
   display:inline-flex;align-items:center;gap:5px;
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:700;letter-spacing:.08em;
-  color:var(--teal);cursor:pointer;
-  border:1px solid rgba(0,217,192,.3);
-  border-radius:6px;padding:3px 10px;
-  transition:all .15s;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;
+  color:var(--teal);cursor:pointer;border:1px solid rgba(0,217,192,.3);
+  border-radius:6px;padding:3px 10px;transition:all .15s;
 }
 .pdf-lbl:hover{background:var(--teal-dim);}
 
 /* ──── DIM EDITOR ──── */
 .dim-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
-.dim-row{
-  background:var(--lift);
-  border:1px solid var(--wire2);
-  border-radius:var(--r);
-  padding:11px 14px;
-  transition:border-color .2s;
-}
+.dim-row{background:var(--lift);border:1px solid var(--wire2);border-radius:var(--r);padding:10px 13px;transition:border-color .2s;}
 .dim-row:focus-within{border-color:rgba(0,217,192,.4);}
-.dim-top{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
-.dim-name{
-  flex:1;background:transparent;border:none;
-  color:var(--text);font-size:13px;font-weight:600;
-  font-family:'DM Sans',sans-serif;outline:none;
-}
+.dim-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.dim-name{flex:1;background:transparent;border:none;color:var(--text);font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;outline:none;}
 .dim-w-wrap{display:flex;align-items:center;gap:7px;flex-shrink:0;}
 .dim-w-lbl{font-size:10px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;}
 input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none;background:none;padding:0;height:4px;}
 .dim-w-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--teal);min-width:24px;text-align:right;}
-.dim-del{
-  width:24px;height:24px;border-radius:6px;border:none;
-  cursor:pointer;font-size:12px;
-  background:rgba(244,63,94,.08);color:#f87171;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;transition:all .15s;
-}
+.dim-del{width:24px;height:24px;border-radius:6px;border:none;cursor:pointer;font-size:12px;background:rgba(244,63,94,.08);color:#f87171;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .dim-del:hover:not(:disabled){background:rgba(244,63,94,.18);}
 .dim-del:disabled{opacity:.2;cursor:not-allowed;}
-.dim-desc{
-  width:100%;background:transparent;border:none;
-  border-bottom:1px solid var(--wire2);
-  padding:3px 0;color:var(--text-mid);
-  font-size:12px;font-family:'DM Sans',sans-serif;
-  outline:none;
-}
+.dim-desc{width:100%;background:transparent;border:none;border-bottom:1px solid var(--wire2);padding:3px 0;color:var(--text-mid);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;}
 .dim-desc:focus{border-color:var(--teal);color:var(--text);}
-.wbar{height:2px;background:var(--wire2);border-radius:1px;margin-top:8px;}
+.wbar{height:2px;background:var(--wire2);border-radius:1px;margin-top:7px;}
 .wbar-fill{height:100%;background:linear-gradient(90deg,var(--teal),#00b4d8);border-radius:1px;transition:width .3s ease;}
 
 /* ──── BUTTONS ──── */
-.btn{
-  display:inline-flex;align-items:center;gap:7px;
-  border:none;cursor:pointer;
-  border-radius:var(--r);font-family:'DM Sans',sans-serif;
-  font-weight:600;transition:all .2s;white-space:nowrap;
-}
-.btn-primary{
-  background:var(--teal);color:var(--ink);
-  font-size:14px;padding:13px 32px;
-  box-shadow:0 0 24px rgba(0,217,192,.3);
-  letter-spacing:.01em;
-}
+.btn{display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-weight:600;transition:all .2s;white-space:nowrap;}
+.btn-primary{background:var(--teal);color:var(--ink);font-size:14px;padding:12px 28px;box-shadow:0 0 24px rgba(0,217,192,.3);letter-spacing:.01em;}
 .btn-primary:hover{box-shadow:0 0 40px rgba(0,217,192,.5);transform:translateY(-1px);}
 .btn-primary:active{transform:translateY(0);}
 .btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
-.btn-ghost{
-  background:transparent;
-  border:1px solid var(--wire2);
-  color:var(--text-mid);
-  font-size:13px;padding:10px 18px;
-}
+.btn-ghost{background:transparent;border:1px solid var(--wire2);color:var(--text-mid);font-size:13px;padding:10px 16px;}
 .btn-ghost:hover{border-color:var(--text-mid);color:var(--text);}
-
-.submit-bar{
-  display:flex;align-items:center;gap:12px;
-  margin-top:24px;padding-top:24px;
-  border-top:1px solid var(--wire);
-  flex-wrap:wrap;
+.btn-next{background:rgba(0,157,142,.1);border:1px solid rgba(0,157,142,.3);color:var(--teal);font-size:14px;font-weight:600;padding:12px 28px;font-family:'DM Sans',sans-serif;}
+.btn-next:hover{background:rgba(0,157,142,.18);border-color:var(--teal);}
+.btn-recommend{
+  background:linear-gradient(135deg,rgba(0,157,142,.1),rgba(67,56,202,.08));
+  border:1px solid rgba(0,157,142,.3);color:var(--teal);
+  font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;
+  border-radius:var(--r);transition:all .2s;
 }
+.btn-recommend:hover{background:linear-gradient(135deg,rgba(0,157,142,.18),rgba(67,56,202,.14));border-color:var(--teal);}
+.btn-recommend:disabled{opacity:.45;cursor:not-allowed;}
+.recommend-tip{
+  margin-top:10px;padding:10px 13px;
+  background:rgba(0,157,142,.06);border:1px solid rgba(0,157,142,.18);
+  border-radius:var(--r);font-size:12px;color:var(--text-mid);line-height:1.6;
+}
+.recommend-tip strong{color:var(--teal);font-weight:600;}
 
-/* ──── ERROR ──── */
-.err{
+/* ──── MODE TABS ──── */
+.mode-tabs{display:flex;gap:4px;background:var(--lift);border:1px solid var(--wire2);border-radius:8px;padding:3px;}
+.mtab{
+  padding:6px 16px;border-radius:6px;border:none;cursor:pointer;
+  font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
+  background:transparent;color:var(--text-dim);transition:all .15s;
+}
+.mtab.active{background:var(--teal);color:var(--ink);}
+
+/* ──── PROJECT CONFIGURED STATE ──── */
+.proj-bar{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:rgba(0,217,192,.06);border:1px solid rgba(0,217,192,.2);
+  border-radius:var(--r);margin-bottom:14px;cursor:pointer;transition:all .15s;
+}
+.proj-bar:hover{background:rgba(0,217,192,.1);}
+.proj-bar-text{flex:1;font-size:12px;color:var(--teal);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.proj-bar-hint{font-size:11px;color:var(--text-dim);}
+
+/* ──── BATCH MODE ──── */
+.batch-expert{
+  background:var(--lift);border:1px solid var(--wire2);
+  border-radius:var(--r);padding:12px 14px;margin-bottom:8px;
+  transition:border-color .2s;
+}
+.batch-expert.running{border-color:var(--teal);}
+.batch-expert.done{border-color:rgba(0,217,192,.3);}
+.batch-expert.failed{border-color:rgba(244,63,94,.3);}
+.be-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.be-name{flex:1;background:transparent;border:none;color:var(--text);font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;outline:none;}
+.be-name::placeholder{color:var(--text-dim);}
+.be-status{
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;letter-spacing:.05em;flex-shrink:0;
+}
+.st-pending{background:var(--lift);color:var(--text-dim);}
+.st-running{background:var(--teal-dim);color:var(--teal);}
+.st-done{background:rgba(52,211,153,.12);color:#34d399;}
+.st-failed{background:rgba(244,63,94,.1);color:#f87171;}
+.be-bg{
+  width:100%;background:var(--panel);border:1px solid var(--wire);
+  border-radius:8px;padding:9px 12px;color:var(--text);
+  font-size:12px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;
+  line-height:1.65;transition:border-color .2s;min-height:72px;
+}
+.be-bg:focus{border-color:var(--teal);}
+.be-bg::placeholder{color:var(--text-dim);}
+.be-del{width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;font-size:11px;background:rgba(244,63,94,.08);color:#f87171;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.be-del:hover{background:rgba(244,63,94,.2);}
+.batch-prog{
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r);padding:14px 16px;margin-bottom:14px;
   display:none;
-  background:rgba(244,63,94,.08);
-  border:1px solid rgba(244,63,94,.25);
-  border-radius:var(--r);
-  padding:11px 16px;color:#fda4af;
-  font-size:13px;margin-top:14px;
 }
-.err.show{display:flex;gap:8px;align-items:center;}
+.batch-prog.show{display:block;}
+.bp-bar{height:4px;background:var(--wire2);border-radius:2px;margin:10px 0 6px;}
+.bp-fill{height:100%;background:var(--teal);border-radius:2px;transition:width .5s ease;}
+.bp-text{font-size:12px;color:var(--text-mid);}
 
-/* ──── LOADING ──── */
-.loading{display:none;text-align:center;padding:80px 20px;}
+/* ──── HISTORY PANEL ──── */
+.hist-toggle{
+  display:flex;align-items:center;gap:12px;cursor:pointer;padding:14px 18px;
+  background:linear-gradient(135deg,rgba(0,157,142,.07) 0%,rgba(0,157,142,.02) 100%);
+  border:1px solid rgba(0,157,142,.25);border-radius:var(--r-lg);margin-bottom:14px;
+  transition:all .2s;user-select:none;box-shadow:0 1px 6px rgba(0,157,142,.08);
+}
+.hist-toggle:hover{border-color:rgba(0,157,142,.45);box-shadow:0 2px 12px rgba(0,157,142,.12);}
+.hist-icon{width:30px;height:30px;border-radius:8px;background:var(--teal-dim);border:1px solid rgba(0,217,192,.25);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.hist-toggle-label{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.hist-toggle-sub{font-size:11px;color:var(--text-dim);margin-top:1px;}
+.hist-count{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,217,192,.25);padding:3px 10px;border-radius:20px;min-width:28px;text-align:center;}
+.hist-arrow{font-size:14px;color:var(--teal);transition:transform .2s;}
+.hist-arrow.open{transform:rotate(180deg);}
+
+.hist-panel{display:none;background:var(--panel);border:1px solid var(--wire);border-radius:var(--r-lg);margin-bottom:20px;overflow:hidden;}
+.hist-panel.open{display:block;}
+
+/* Filter tabs */
+.filter-bar{display:flex;gap:0;border-bottom:1px solid var(--wire);overflow-x:auto;}
+.ftab{
+  padding:10px 16px;border:none;background:transparent;cursor:pointer;
+  font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
+  color:var(--text-dim);border-bottom:2px solid transparent;
+  white-space:nowrap;transition:all .15s;margin-bottom:-1px;
+}
+.ftab:hover{color:var(--text);}
+.ftab.active{color:var(--teal);border-bottom-color:var(--teal);}
+.ftab .fc{
+  display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;
+  margin-left:5px;opacity:.6;
+}
+
+.hist-empty{padding:24px;text-align:center;font-size:13px;color:var(--text-dim);}
+.hist-item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--wire);cursor:pointer;transition:background .15s;}
+.hist-item:last-child{border-bottom:none;}
+.hist-item:hover{background:var(--lift);}
+.hi-badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:4px;flex-shrink:0;}
+.hi-body{flex:1;min-width:0;}
+.hi-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.hi-proj{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hi-meta{text-align:right;flex-shrink:0;}
+.hi-score{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;line-height:1;}
+.hi-time{font-size:10px;color:var(--text-dim);margin-top:3px;font-family:'JetBrains Mono',monospace;}
+.hi-del{width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;font-size:11px;flex-shrink:0;background:rgba(244,63,94,.08);color:#f87171;display:flex;align-items:center;justify-content:center;transition:all .15s;opacity:0;}
+.hist-item:hover .hi-del{opacity:1;}
+.hi-del:hover{background:rgba(244,63,94,.2);}
+
+/* ──── ERROR / LOADING ──── */
+.err{display:none;background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.25);border-radius:var(--r);padding:11px 16px;color:#fda4af;font-size:13px;margin-top:14px;}
+.err.show{display:flex;gap:8px;align-items:center;}
+.loading{display:none;text-align:center;padding:60px 20px;}
 .loading.show{display:block;}
-.ld-ring{
-  width:56px;height:56px;
-  border-radius:50%;
-  border:2px solid var(--wire2);
-  border-top-color:var(--teal);
-  animation:spin .8s linear infinite;
-  margin:0 auto 24px;
-  box-shadow:0 0 24px rgba(0,217,192,.2);
-}
+.ld-ring{width:52px;height:52px;border-radius:50%;border:2px solid var(--wire2);border-top-color:var(--teal);animation:spin .8s linear infinite;margin:0 auto 20px;box-shadow:0 0 24px rgba(0,157,142,.15);}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ld-title{
-  font-family:'Instrument Serif',serif;font-style:italic;
-  font-size:22px;color:#fff;margin-bottom:8px;
-}
+.ld-title{font-family:'Instrument Serif',serif;font-style:italic;font-size:20px;color:var(--text);margin-bottom:6px;}
 .ld-sub{font-size:12px;color:var(--text-dim);letter-spacing:.03em;}
 .dots::after{content:'';animation:dots 1.5s infinite;}
 @keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
 
+/* ──── SUBMIT BAR ──── */
+.submit-bar{display:flex;align-items:center;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid var(--wire);flex-wrap:wrap;}
+
 /* ──── DIVIDER ──── */
-.divider{
-  display:flex;align-items:center;gap:14px;
-  margin:32px 0 20px;
-}
+.divider{display:flex;align-items:center;gap:14px;margin:28px 0 18px;}
 .div-line{flex:1;height:1px;background:var(--wire);}
-.div-label{
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:700;color:var(--text-dim);
-  text-transform:uppercase;letter-spacing:.12em;white-space:nowrap;
-}
+.div-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.12em;white-space:nowrap;}
 
 /* ──── RESULTS ──── */
 #results{display:none;}
 #results.show{display:block;}
-
-/* Fade-up animation for result cards */
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(16px);}
-  to{opacity:1;transform:translateY(0);}
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 .fade-up{animation:fadeUp .5s ease both;}
 
-/* Recommendation banner */
-.rec{
-  border-radius:var(--r-lg);
-  border:1px solid;
-  padding:28px 30px;
-  display:flex;align-items:flex-start;gap:22px;
-  margin-bottom:16px;
-  position:relative;overflow:hidden;
-}
-.rec::after{
-  content:'';position:absolute;
-  top:-40px;right:-40px;
-  width:200px;height:200px;
-  border-radius:50%;
-  background:radial-gradient(circle,currentColor 0%,transparent 70%);
-  opacity:.06;pointer-events:none;
-}
-.rec-badge{
-  width:52px;height:52px;
-  border-radius:50%;border:2px solid currentColor;
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;flex-shrink:0;
-  font-family:'JetBrains Mono',monospace;font-weight:700;
-}
+.rec{border-radius:var(--r-lg);border:1px solid;padding:24px 28px;display:flex;align-items:flex-start;gap:20px;margin-bottom:14px;position:relative;overflow:hidden;}
+.rec::after{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,currentColor 0%,transparent 70%);opacity:.06;pointer-events:none;}
+.rec-badge{width:48px;height:48px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-weight:700;}
 .rec-body{flex:1;}
-.rec-eyebrow{
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:700;letter-spacing:.12em;
-  text-transform:uppercase;opacity:.6;margin-bottom:6px;
-}
-.rec-verdict{
-  font-family:'Instrument Serif',serif;
-  font-size:28px;font-weight:400;
-  margin-bottom:10px;line-height:1.2;
-}
-.rec-reason{font-size:14px;opacity:.8;line-height:1.75;color:var(--text);}
+.rec-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.6;margin-bottom:6px;}
+.rec-name{font-size:12px;font-weight:600;opacity:.7;margin-bottom:4px;}
+.rec-verdict{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;margin-bottom:8px;line-height:1.2;}
+.rec-reason{font-size:13px;opacity:.8;line-height:1.75;color:var(--text);}
 
-/* Score tiles */
-.score-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
-.stile{
-  background:var(--panel);border:1px solid var(--wire);
-  border-radius:var(--r-lg);padding:22px 24px;
-  display:flex;align-items:center;gap:20px;
-}
+.score-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.stile{background:var(--panel);border:1px solid var(--wire);border-radius:var(--r-lg);padding:20px 22px;display:flex;align-items:center;gap:18px;}
 .sring-svg{flex-shrink:0;}
-.sring-val{
-  font-family:'JetBrains Mono',monospace;
-  font-size:18px;font-weight:700;
-}
-.stile-info{}
+.sring-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;}
 .stile-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
 .stile-sub{font-size:12px;color:var(--text-mid);}
 
-/* Dim result cards */
 .dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
 @media(max-width:700px){.dim-grid{grid-template-columns:1fr;}}
-.dc{
-  background:var(--panel);border:1px solid var(--wire);
-  border-radius:var(--r-lg);padding:18px 20px;
-  transition:border-color .2s,transform .2s;
-}
+.dc{background:var(--panel);border:1px solid var(--wire);border-radius:var(--r-lg);padding:16px 18px;transition:border-color .2s,transform .2s;}
 .dc:hover{border-color:var(--wire2);transform:translateY(-1px);}
-.dc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
-.dc-name{font-size:14px;font-weight:600;}
-.dc-right{text-align:right;}
-.dc-score{
-  font-family:'JetBrains Mono',monospace;
-  font-size:32px;font-weight:700;line-height:1;
-}
+.dc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.dc-name{font-size:13px;font-weight:600;}
+.dc-score{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;line-height:1;}
 .dc-w{font-size:11px;color:var(--text-dim);margin-top:2px;font-family:'JetBrains Mono',monospace;}
-.prog{height:4px;background:var(--lift);border-radius:2px;margin-bottom:14px;overflow:hidden;}
+.prog{height:4px;background:var(--lift);border-radius:2px;margin-bottom:12px;overflow:hidden;}
 .prog-f{height:100%;border-radius:2px;transition:width .9s cubic-bezier(.4,0,.2,1);}
-.rows{display:flex;flex-direction:column;gap:8px;}
-.row{display:flex;gap:8px;align-items:flex-start;}
-.rtag{
-  font-family:'JetBrains Mono',monospace;
-  font-size:9px;font-weight:700;letter-spacing:.06em;
-  text-transform:uppercase;padding:2px 6px;border-radius:3px;
-  flex-shrink:0;margin-top:3px;
-}
+.rows{display:flex;flex-direction:column;gap:7px;}
+.row{display:flex;gap:7px;align-items:flex-start;}
+.rtag{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px;flex-shrink:0;margin-top:3px;}
 .tag-e{background:rgba(0,217,192,.12);color:var(--teal);}
 .tag-r{background:rgba(245,158,11,.12);color:var(--amber);}
 .tag-s{background:rgba(125,147,178,.1);color:var(--text-mid);}
 .rtext{font-size:12px;color:var(--text-mid);line-height:1.65;}
 
-/* Insight cards */
 .insight-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
 @media(max-width:700px){.insight-pair{grid-template-columns:1fr;}}
-.ic{
-  background:var(--panel);border:1px solid var(--wire);
-  border-radius:var(--r-lg);padding:20px 22px;
-}
-.ic-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.ic{background:var(--panel);border:1px solid var(--wire);border-radius:var(--r-lg);padding:18px 20px;}
+.ic-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
 .ic-title{font-size:13px;font-weight:600;color:var(--text-mid);}
-.ic-badge{
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:700;letter-spacing:.06em;
-  padding:3px 10px;border-radius:20px;
-}
-.salary-num{
-  font-family:'JetBrains Mono',monospace;
-  font-size:36px;font-weight:700;
-  color:var(--teal);line-height:1;letter-spacing:-.02em;
-  margin-bottom:3px;
-}
-.salary-unit{font-size:11px;color:var(--text-dim);margin-bottom:12px;font-family:'JetBrains Mono',monospace;}
+.ic-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 10px;border-radius:20px;}
+.salary-num{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--teal);line-height:1;letter-spacing:-.02em;margin-bottom:3px;}
+.salary-unit{font-size:11px;color:var(--text-dim);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
 .salary-note{font-size:12px;color:var(--text-mid);line-height:1.65;}
 
-/* Training */
-.tc{
-  background:var(--panel);border:1px solid var(--wire);
-  border-radius:var(--r-lg);padding:20px 22px;margin-bottom:12px;
-}
-.tc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.tc-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+.tc{background:var(--panel);border:1px solid var(--wire);border-radius:var(--r-lg);padding:18px 20px;margin-bottom:12px;}
+.tc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.tc-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;}
 @media(max-width:600px){.tc-cols{grid-template-columns:1fr;}}
-.tc-col-label{
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  margin-bottom:10px;
-}
-.gi{
-  display:flex;gap:7px;align-items:baseline;
-  font-size:12px;color:var(--text-mid);
-  padding:5px 0;border-bottom:1px solid var(--wire);
-  line-height:1.55;
-}
+.tc-col-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.gi{display:flex;gap:7px;align-items:baseline;font-size:12px;color:var(--text-mid);padding:4px 0;border-bottom:1px solid var(--wire);line-height:1.55;}
 .gi:last-child{border-bottom:none;}
 .gi-dot{flex-shrink:0;font-size:10px;}
+.md{background:var(--panel);border:1px solid var(--wire);border-radius:var(--r-lg);padding:18px 20px;}
+.md-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.md-score{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;}
 
-/* Match detail */
-.md{
-  background:var(--panel);border:1px solid var(--wire);
-  border-radius:var(--r-lg);padding:20px 22px;
+/* ──── POTENTIAL SIGNALS ──── */
+.potential-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
+@media(max-width:700px){.potential-list{grid-template-columns:1fr;}}
+.ps-item{
+  background:linear-gradient(135deg,rgba(67,56,202,.06),rgba(0,157,142,.05));
+  border:1px solid rgba(67,56,202,.18);
+  border-radius:var(--r);padding:12px 14px;
+  display:flex;gap:10px;align-items:flex-start;
 }
-.md-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
-.md-score{
-  font-family:'JetBrains Mono',monospace;
-  font-size:30px;font-weight:700;
+.ps-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.ps-signal{font-size:12px;font-weight:600;color:#4338ca;margin-bottom:3px;}
+.ps-rel{font-size:12px;color:var(--text-mid);line-height:1.55;}
+
+/* Inferred badge on dim cards */
+.inferred-badge{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
+  padding:1px 6px;border-radius:3px;letter-spacing:.05em;
+  background:rgba(67,56,202,.1);color:#4338ca;border:1px solid rgba(67,56,202,.2);
+  margin-left:6px;vertical-align:middle;
+}
+
+/* Next expert bar */
+.next-bar{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin-top:36px;padding:24px;
+  background:var(--panel);border:1px solid var(--wire);border-radius:var(--r-lg);
 }
 
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--wire2);border-radius:3px;}
-
-/* ──── HISTORY ──── */
-.hist-toggle{
-  display:flex;align-items:center;gap:10px;
-  cursor:pointer;padding:12px 16px;
-  background:var(--panel);border:1px solid var(--wire);
-  border-radius:var(--r-lg);margin-bottom:14px;
-  transition:border-color .2s;
-  user-select:none;
-}
-.hist-toggle:hover{border-color:var(--wire2);}
-.hist-toggle-label{
-  font-size:13px;font-weight:600;color:var(--text-mid);
-  flex:1;
-}
-.hist-count{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;color:var(--teal);
-  background:var(--teal-dim);border:1px solid rgba(0,217,192,.2);
-  padding:1px 8px;border-radius:4px;
-}
-.hist-arrow{font-size:12px;color:var(--text-dim);transition:transform .2s;}
-.hist-arrow.open{transform:rotate(180deg);}
-
-.hist-panel{
-  display:none;
-  background:var(--panel);border:1px solid var(--wire);
-  border-radius:var(--r-lg);margin-bottom:20px;
-  overflow:hidden;
-}
-.hist-panel.open{display:block;}
-.hist-empty{padding:24px;text-align:center;font-size:13px;color:var(--text-dim);}
-.hist-item{
-  display:flex;align-items:center;gap:12px;
-  padding:12px 16px;
-  border-bottom:1px solid var(--wire);
-  cursor:pointer;transition:background .15s;
-}
-.hist-item:last-child{border-bottom:none;}
-.hist-item:hover{background:var(--lift);}
-.hi-badge{
-  font-family:'JetBrains Mono',monospace;
-  font-size:9px;font-weight:700;letter-spacing:.05em;
-  padding:2px 7px;border-radius:4px;flex-shrink:0;
-}
-.hi-body{flex:1;min-width:0;}
-.hi-proj{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.hi-exp{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
-.hi-meta{text-align:right;flex-shrink:0;}
-.hi-score{
-  font-family:'JetBrains Mono',monospace;
-  font-size:16px;font-weight:700;line-height:1;
-}
-.hi-time{font-size:10px;color:var(--text-dim);margin-top:3px;font-family:'JetBrains Mono',monospace;}
-.hi-del{
-  width:22px;height:22px;border-radius:5px;border:none;
-  cursor:pointer;font-size:11px;flex-shrink:0;
-  background:rgba(244,63,94,.08);color:#f87171;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .15s;opacity:0;
-}
-.hist-item:hover .hi-del{opacity:1;}
-.hi-del:hover{background:rgba(244,63,94,.2);}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="h-eyebrow">Expert Evaluation System</div>
-  <h1 style="text-align:center">专家<em>能力评估</em>平台</h1>
-  <p>AI 多维度分析 · 项目匹配度 · 薪资水位 · 培训成本</p>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-logo">Le</div>
+      <div>
+        <div class="brand-name">Label<span>Ease</span></div>
+        <div style="font-size:10px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-top:1px">标注平台</div>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="h-eyebrow">Expert Evaluation System</div>
+      <h1>专家<em>能力评估</em>平台</h1>
+      <p>AI 多维度分析 · 项目匹配度 · 薪资水位 · 培训成本</p>
+    </div>
+    <div class="header-right"></div>
+  </div>
 </header>
 
 <div class="container">
 
   <!-- 历史记录 -->
   <div class="hist-toggle" onclick="toggleHist()">
-    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal)">◑</span>
-    <span class="hist-toggle-label">历史评估记录</span>
+    <div class="hist-icon">📋</div>
+    <div style="flex:1">
+      <div class="hist-toggle-label">历史评估记录</div>
+      <div class="hist-toggle-sub">点击展开 · 所有访问者共享同一份记录</div>
+    </div>
     <span class="hist-count" id="histCount">0</span>
     <span class="hist-arrow" id="histArrow">▾</span>
   </div>
   <div class="hist-panel" id="histPanel">
+    <div class="filter-bar">
+      <button class="ftab active" onclick="setFilter('all')">全部<span class="fc" id="fc-all">0</span></button>
+      <button class="ftab" onclick="setFilter('强推荐')" style="color:#00d9c0">强推荐<span class="fc" id="fc-s">0</span></button>
+      <button class="ftab" onclick="setFilter('推荐')" style="color:#818cf8">推荐<span class="fc" id="fc-r">0</span></button>
+      <button class="ftab" onclick="setFilter('待定')" style="color:#f59e0b">待定<span class="fc" id="fc-p">0</span></button>
+      <button class="ftab" onclick="setFilter('不推荐')" style="color:#f87171">不推荐<span class="fc" id="fc-n">0</span></button>
+    </div>
     <div class="hist-empty" id="histEmpty">暂无历史记录，完成首次评估后将自动保存</div>
     <div id="histList"></div>
   </div>
 
-  <!-- ① 输入 -->
-  <div class="s-head" style="margin-top:0">
+  <!-- ① 项目配置（可折叠） -->
+  <div class="s-head" style="margin-top:4px">
     <span class="s-num">01</span>
-    <span class="s-title">填写评估信息</span>
+    <span class="s-title">项目配置</span>
+    <span style="font-size:11px;color:var(--text-dim);margin-left:4px">维度可增删·改名·调权重</span>
+    <button class="btn-ghost" id="projCollapseBtn" onclick="toggleProjectSection()" style="margin-left:auto;font-size:11px;padding:5px 12px">收起</button>
   </div>
-  <div class="g2" style="margin-bottom:14px">
-    <div class="panel">
-      <div class="panel-label">项目描述</div>
-      <textarea id="projectDesc" rows="9"
-        placeholder="标注任务类型、难度要求、核心技能要求...&#10;&#10;例：本项目为 LLM 指令跟随标注，需对 AI 回复进行多维质量评分（准确性/安全性），要求标注者具备基础 NLP 知识，能识别模型幻觉..."></textarea>
-      <div class="char-c" id="projCount">0 chars</div>
+
+  <!-- 项目已配置快捷预览（收起时显示） -->
+  <div class="proj-bar" id="projBar" style="display:none" onclick="expandProjectSection()">
+    <span style="color:var(--teal);font-size:13px">✓</span>
+    <span class="proj-bar-text" id="projBarText">—</span>
+    <span class="proj-bar-hint">点击展开修改</span>
+  </div>
+
+  <div id="projectSection">
+    <div class="g2" style="margin-bottom:14px">
+      <div class="panel">
+        <div class="panel-label">标注项目描述</div>
+        <textarea id="projectDesc" rows="8"
+          placeholder="标注任务类型、难度要求、核心技能要求...&#10;&#10;例：本项目为 LLM 指令跟随标注，需对 AI 回复进行多维质量评分（准确性/安全性），要求标注者具备基础 NLP 知识..."></textarea>
+        <div class="char-c" id="projCount">0 chars</div>
+      </div>
+      <div class="panel">
+        <div class="panel-label">评估维度配置</div>
+        <div class="dim-list" id="dimList"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="addDim()" style="font-size:11px;padding:6px 12px">＋ 添加</button>
+          <button class="btn btn-ghost" onclick="resetDims()" style="font-size:11px;padding:6px 12px">↺ 重置</button>
+          <button class="btn btn-recommend" id="recommendBtn" onclick="recommendWeights()" style="font-size:11px;padding:6px 14px">✦ 智能推荐权重</button>
+        </div>
+        <div class="recommend-tip" id="recommendTip" style="display:none"></div>
+      </div>
     </div>
-    <div class="panel">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:20px">
+      <button class="btn btn-ghost" onclick="collapseProjectSection()" style="font-size:12px;padding:8px 18px">项目配置完成，收起 ↑</button>
+    </div>
+  </div>
+
+  <!-- ② 评估专家 -->
+  <div class="s-head">
+    <span class="s-num">02</span>
+    <span class="s-title">评估专家</span>
+    <div class="mode-tabs" style="margin-left:auto">
+      <button class="mtab active" id="tab-single" onclick="switchMode('single')">单个评估</button>
+      <button class="mtab" id="tab-batch" onclick="switchMode('batch')">批量评估</button>
+    </div>
+  </div>
+
+  <!-- 单个模式 -->
+  <div id="singleMode">
+    <div class="panel" style="margin-bottom:14px">
+      <div class="name-input">
+        <input type="text" id="expertName" placeholder="专家姓名（可选，AI 会自动识别）" style="font-size:13px;font-weight:600"/>
+      </div>
       <div class="panel-label">
         专家背景
         <label class="pdf-lbl">
-          ↑ PDF
+          ↑ 上传 PDF
           <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="uploadPDF(this)">
         </label>
       </div>
@@ -552,28 +529,33 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
         placeholder="专家简历、自我介绍、能力描述...&#10;&#10;例：张某，NLP 算法工程师，5 年经验，熟悉 Transformer 架构，参与过 RLHF 数据构建..."></textarea>
       <div class="char-c" id="expertCount">0 chars</div>
     </div>
-  </div>
 
-  <!-- ② 维度 -->
-  <div class="s-head">
-    <span class="s-num">02</span>
-    <span class="s-title">评估维度配置</span>
-    <span style="font-size:11px;color:var(--text-dim);margin-left:4px">可增删·改名·调权重</span>
-  </div>
-  <div class="panel" style="margin-bottom:14px">
-    <div class="dim-list" id="dimList"></div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost" onclick="addDim()" style="font-size:12px;padding:8px 14px">＋ 添加维度</button>
-      <button class="btn btn-ghost" onclick="resetDims()" style="font-size:12px;padding:8px 14px">↺ 恢复默认</button>
+    <div class="err" id="errBox">⚠ <span id="errMsg"></span></div>
+
+    <div class="submit-bar">
+      <button class="btn btn-primary" id="evalBtn" onclick="runEval()">→ 开始评估</button>
+      <button class="btn btn-ghost" onclick="loadDemo()">示例数据</button>
+      <button class="btn btn-ghost" onclick="clearExpert()">清空</button>
     </div>
   </div>
 
-  <div class="err" id="errBox">⚠ <span id="errMsg"></span></div>
+  <!-- 批量模式 -->
+  <div id="batchMode" style="display:none">
+    <div class="batch-prog" id="batchProg">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:600;color:var(--text)">批量评估进度</span>
+        <span class="bp-text" id="bpText">—</span>
+      </div>
+      <div class="bp-bar"><div class="bp-fill" id="bpFill" style="width:0%"></div></div>
+    </div>
 
-  <div class="submit-bar">
-    <button class="btn btn-primary" id="evalBtn" onclick="runEval()">→ 开始评估</button>
-    <button class="btn btn-ghost" onclick="loadDemo()">示例数据</button>
-    <button class="btn btn-ghost" onclick="clearAll()">清空</button>
+    <div id="batchList"></div>
+
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="addBatchExpert()" style="font-size:13px">＋ 添加专家</button>
+      <button class="btn btn-primary" id="batchRunBtn" onclick="runBatch()">→ 开始批量评估 <span id="batchCount">0</span> 位</button>
+    </div>
+    <div class="err" id="batchErrBox" style="margin-top:12px">⚠ <span id="batchErrMsg"></span></div>
   </div>
 
   <!-- Loading -->
@@ -583,83 +565,63 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
     <div class="ld-sub">AI 正在综合项目描述与专家背景进行多维度评估，通常需要 30–120 秒</div>
   </div>
 
-  <!-- ③ 结果 -->
+  <!-- ③ 评估结果 -->
   <div id="results">
-
     <div class="divider"><div class="div-line"></div><div class="div-label">评估结果</div><div class="div-line"></div></div>
 
-    <!-- 推荐结论 -->
     <div class="rec fade-up" id="recBanner" style="animation-delay:.05s">
       <div class="rec-badge" id="recBadge"></div>
       <div class="rec-body">
         <div class="rec-eyebrow">综合评估结论</div>
+        <div class="rec-name" id="recName"></div>
         <div class="rec-verdict" id="recVerdict"></div>
         <div class="rec-reason" id="recReason"></div>
       </div>
     </div>
 
-    <!-- 总分 -->
     <div class="score-row fade-up" style="animation-delay:.15s">
       <div class="stile">
-        <svg class="sring-svg" width="64" height="64" viewBox="0 0 64 64">
-          <circle cx="32" cy="32" r="26" fill="none" stroke="#1a2333" stroke-width="5"/>
-          <circle id="ringTotal" cx="32" cy="32" r="26" fill="none" stroke="#00d9c0" stroke-width="5"
+        <svg class="sring-svg" width="60" height="60" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="#dde3ec" stroke-width="5"/>
+          <circle id="ringTotal" cx="32" cy="32" r="26" fill="none" stroke="#009d8e" stroke-width="5"
                   stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"
                   transform="rotate(-90 32 32)" style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)"/>
-          <text x="32" y="37" text-anchor="middle"
-                font-family="JetBrains Mono,monospace" font-size="14" font-weight="700"
-                fill="#e2e8f0" id="ringTotalTxt">—</text>
+          <text x="32" y="37" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="14" font-weight="700" fill="#0f172a" id="ringTotalTxt">—</text>
         </svg>
-        <div class="stile-info">
-          <div class="stile-name">综合加权得分</div>
-          <div class="stile-sub">各维度权重加权均值</div>
-        </div>
+        <div><div class="stile-name">综合加权得分</div><div class="stile-sub">各维度权重加权均值</div></div>
       </div>
       <div class="stile">
-        <svg class="sring-svg" width="64" height="64" viewBox="0 0 64 64">
-          <circle cx="32" cy="32" r="26" fill="none" stroke="#1a2333" stroke-width="5"/>
-          <circle id="ringMatch" cx="32" cy="32" r="26" fill="none" stroke="#00d9c0" stroke-width="5"
+        <svg class="sring-svg" width="60" height="60" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="#dde3ec" stroke-width="5"/>
+          <circle id="ringMatch" cx="32" cy="32" r="26" fill="none" stroke="#009d8e" stroke-width="5"
                   stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"
                   transform="rotate(-90 32 32)" style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)"/>
-          <text x="32" y="37" text-anchor="middle"
-                font-family="JetBrains Mono,monospace" font-size="14" font-weight="700"
-                fill="#e2e8f0" id="ringMatchTxt">—</text>
+          <text x="32" y="37" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="14" font-weight="700" fill="#0f172a" id="ringMatchTxt">—</text>
         </svg>
-        <div class="stile-info">
-          <div class="stile-name">项目匹配度</div>
-          <div class="stile-sub">与本项目整体契合程度</div>
-        </div>
+        <div><div class="stile-name">项目匹配度</div><div class="stile-sub">与本项目整体契合程度</div></div>
       </div>
     </div>
 
-    <!-- 维度详分 -->
-    <div class="divider fade-up" style="animation-delay:.2s">
-      <div class="div-line"></div><div class="div-label">各维度详细评分</div><div class="div-line"></div>
+    <!-- 潜力信号 -->
+    <div id="potentialWrap" style="display:none">
+      <div class="divider fade-up" style="animation-delay:.18s"><div class="div-line"></div><div class="div-label">发现的潜力迁移信号</div><div class="div-line"></div></div>
+      <div class="potential-list fade-up" id="potentialList" style="animation-delay:.2s"></div>
     </div>
+
+    <div class="divider fade-up" style="animation-delay:.2s"><div class="div-line"></div><div class="div-label">各维度详细评分</div><div class="div-line"></div></div>
     <div class="dim-grid fade-up" id="dimGrid" style="animation-delay:.25s"></div>
 
-    <!-- 薪资 + 意愿 -->
-    <div class="divider fade-up" style="animation-delay:.3s">
-      <div class="div-line"></div><div class="div-label">薪资与接受意愿</div><div class="div-line"></div>
-    </div>
+    <div class="divider fade-up" style="animation-delay:.3s"><div class="div-line"></div><div class="div-label">薪资与接受意愿</div><div class="div-line"></div></div>
     <div class="insight-pair fade-up" style="animation-delay:.35s">
       <div class="ic">
-        <div class="ic-head">
-          <div class="ic-title">薪资水位预估</div>
-          <span class="ic-badge" id="diffBadge"></span>
-        </div>
+        <div class="ic-head"><div class="ic-title">薪资水位预估</div><span class="ic-badge" id="diffBadge"></span></div>
         <div class="salary-num" id="salNum">—</div>
         <div class="salary-unit">元 / 小时</div>
         <div class="salary-note" id="salNote"></div>
       </div>
       <div class="ic">
-        <div class="ic-head">
-          <div class="ic-title">接受意愿分析</div>
-          <span class="ic-badge" id="accBadge"></span>
-        </div>
-        <div class="prog" style="margin-bottom:14px">
-          <div class="prog-f" id="accBar" style="width:0%"></div>
-        </div>
+        <div class="ic-head"><div class="ic-title">接受意愿分析</div><span class="ic-badge" id="accBadge"></span></div>
+        <div class="prog" style="margin-bottom:12px"><div class="prog-f" id="accBar" style="width:0%"></div></div>
         <div class="rows">
           <div class="row"><span class="rtag tag-e">分析</span><span class="rtext" id="accAna"></span></div>
           <div class="row"><span class="rtag tag-r">顾虑</span><span class="rtext" id="accCon"></span></div>
@@ -667,10 +629,7 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
       </div>
     </div>
 
-    <!-- 培训成本 -->
-    <div class="divider fade-up" style="animation-delay:.4s">
-      <div class="div-line"></div><div class="div-label">培训成本分析</div><div class="div-line"></div>
-    </div>
+    <div class="divider fade-up" style="animation-delay:.4s"><div class="div-line"></div><div class="div-label">培训成本分析</div><div class="div-line"></div></div>
     <div class="tc fade-up" style="animation-delay:.45s">
       <div class="tc-head">
         <span style="font-size:13px;font-weight:600;color:var(--text-mid)">上手培训详情</span>
@@ -680,41 +639,39 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
         </div>
       </div>
       <div class="tc-cols">
-        <div>
-          <div class="tc-col-label" style="color:#34d399">✓ 可培训弥补</div>
-          <div id="trainable"></div>
-        </div>
-        <div>
-          <div class="tc-col-label" style="color:#f87171">✕ 难以速成</div>
-          <div id="nonTrainable"></div>
-        </div>
+        <div><div class="tc-col-label" style="color:#34d399">✓ 可培训弥补</div><div id="trainable"></div></div>
+        <div><div class="tc-col-label" style="color:#f87171">✕ 难以速成</div><div id="nonTrainable"></div></div>
       </div>
-      <div class="row">
-        <span class="rtag tag-s">建议</span>
-        <span class="rtext" id="onboard"></span>
-      </div>
+      <div class="row"><span class="rtag tag-s">建议</span><span class="rtext" id="onboard"></span></div>
     </div>
 
-    <!-- 匹配度详情 -->
-    <div class="divider fade-up" style="animation-delay:.5s">
-      <div class="div-line"></div><div class="div-label">项目匹配度详情</div><div class="div-line"></div>
-    </div>
+    <div class="divider fade-up" style="animation-delay:.5s"><div class="div-line"></div><div class="div-label">项目匹配度详情</div><div class="div-line"></div></div>
     <div class="md fade-up" style="animation-delay:.55s">
       <div class="md-head">
         <span style="font-size:13px;font-weight:600;color:var(--text-mid)">整体契合分析</span>
         <span class="md-score" id="mdScore"></span>
       </div>
-      <div class="prog" style="margin-bottom:14px">
-        <div class="prog-f" id="mdBar" style="width:0%"></div>
-      </div>
+      <div class="prog" style="margin-bottom:12px"><div class="prog-f" id="mdBar" style="width:0%"></div></div>
       <div class="rows" id="mdRows"></div>
     </div>
 
+    <!-- 下一位 -->
+    <div class="next-bar fade-up" style="animation-delay:.6s">
+      <span style="font-size:13px;color:var(--text-mid)">评估完成</span>
+      <button class="btn btn-next" onclick="nextExpert()">继续评估下一位 →</button>
+      <button class="btn btn-ghost" onclick="window.scrollTo({top:0,behavior:'smooth'})">查看历史记录 ↑</button>
+    </div>
   </div>
+
 </div>
 
 <script>
 let dims = [];
+let currentFilter = 'all';
+let allHistory = [];
+let batchExperts = [];
+let batchRunning = false;
+let currentMode = 'single';
 
 // ── 维度管理 ──
 async function initDims() {
@@ -741,7 +698,7 @@ function renderDims() {
         <button class="dim-del" onclick="delDim('${d.id}')" ${dims.length<=1?'disabled':''}>✕</button>
       </div>
       <input class="dim-desc" value="${esc(d.description)}" oninput="upd('${d.id}','description',this.value)"
-             placeholder="维度说明（可选，帮助 AI 更准确评分）"/>
+             placeholder="维度说明（可选）"/>
       <div class="wbar"><div class="wbar-fill" style="width:${(d.weight/tot*100).toFixed(1)}%"></div></div>
     </div>`).join('');
 }
@@ -766,106 +723,294 @@ function addDim() {
 }
 async function resetDims() { await initDims(); }
 
-// ── 字符计数 ──
-document.getElementById('projectDesc').addEventListener('input',function(){
-  document.getElementById('projCount').textContent=this.value.length+' chars';
-});
-document.getElementById('expertBg').addEventListener('input',function(){
-  document.getElementById('expertCount').textContent=this.value.length+' chars';
+async function recommendWeights() {
+  const proj = document.getElementById('projectDesc').value.trim();
+  if (!proj) { alert('请先填写项目描述'); return; }
+  const btn = document.getElementById('recommendBtn');
+  const tip = document.getElementById('recommendTip');
+  btn.disabled = true;
+  btn.textContent = '✦ 分析中…';
+  tip.style.display = 'none';
+  try {
+    const res = await fetch('/api/recommend-weights', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        project_description: proj,
+        dimensions: dims.map(d => ({id:d.id, name:d.name, weight:d.weight, description:d.description||''}))
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail||'推荐失败');
+
+    // 应用推荐权重
+    data.weights.forEach(w => {
+      const d = dims.find(x => x.id === w.id);
+      if (d) d.weight = parseFloat(w.weight);
+    });
+    renderDims();
+
+    // 显示分析说明
+    const lines = (data.weights||[]).map(w => {
+      const d = dims.find(x=>x.id===w.id);
+      return d ? `<span style="color:var(--text)">【${d.name}】</span> → ${w.weight} · ${w.reason}` : '';
+    }).filter(Boolean).join('<br>');
+    tip.innerHTML = `<strong>项目类型：${data.project_type}</strong><br><span style="color:var(--text-dim)">${data.rationale}</span><br><br>${lines}`;
+    tip.style.display = 'block';
+  } catch(e) {
+    tip.innerHTML = `<span style="color:#be123c">推荐失败：${e.message}</span>`;
+    tip.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✦ 智能推荐权重';
+  }
+}
+
+// ── 项目配置折叠 & localStorage ──
+document.getElementById('projectDesc').addEventListener('input', function(){
+  document.getElementById('projCount').textContent = this.value.length + ' chars';
+  localStorage.setItem('proj_desc', this.value);
 });
 
-// ── 评估 ──
+function toggleProjectSection() {
+  const proj = document.getElementById('projectDesc').value.trim();
+  if (proj) collapseProjectSection();
+  else expandProjectSection();
+}
+function collapseProjectSection() {
+  const proj = document.getElementById('projectDesc').value.trim();
+  if (!proj) return;
+  document.getElementById('projectSection').style.display = 'none';
+  document.getElementById('projBar').style.display = 'flex';
+  document.getElementById('projBarText').textContent = proj.slice(0,80) + (proj.length>80?'…':'');
+  document.getElementById('projCollapseBtn').style.display = 'none';
+}
+function expandProjectSection() {
+  document.getElementById('projectSection').style.display = 'block';
+  document.getElementById('projBar').style.display = 'none';
+  document.getElementById('projCollapseBtn').style.display = '';
+}
+
+// ── 字符计数 ──
+document.getElementById('expertBg').addEventListener('input', function(){
+  document.getElementById('expertCount').textContent = this.value.length + ' chars';
+});
+
+// ── 模式切换 ──
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('singleMode').style.display = mode==='single' ? 'block' : 'none';
+  document.getElementById('batchMode').style.display = mode==='batch' ? 'block' : 'none';
+  document.getElementById('tab-single').classList.toggle('active', mode==='single');
+  document.getElementById('tab-batch').classList.toggle('active', mode==='batch');
+  document.getElementById('results').classList.remove('show');
+  if (mode==='batch' && batchExperts.length===0) addBatchExpert();
+}
+
+// ── 批量模式 ──
+function addBatchExpert() {
+  const id = 'be_' + Date.now();
+  batchExperts.push({id, name:'', bg:'', status:'pending'});
+  renderBatchList();
+}
+
+function removeBatchExpert(id) {
+  batchExperts = batchExperts.filter(e=>e.id!==id);
+  renderBatchList();
+}
+
+function updateBatchExpert(id, field, value) {
+  const e = batchExperts.find(x=>x.id===id);
+  if (e) e[field] = value;
+  document.getElementById('batchCount').textContent = batchExperts.length;
+}
+
+function renderBatchList() {
+  document.getElementById('batchList').innerHTML = batchExperts.map(e => {
+    const stClass = {pending:'st-pending',running:'st-running',done:'st-done',failed:'st-failed'}[e.status];
+    const stText = {pending:'○ 待评估',running:'⏳ 评估中',done:'✓ 完成',failed:'✗ 失败'}[e.status];
+    const disabled = batchRunning ? 'disabled' : '';
+    return `<div class="batch-expert ${e.status}" id="be_${e.id}">
+      <div class="be-head">
+        <input class="be-name" placeholder="专家姓名（可选）" value="${esc(e.name)}"
+          oninput="updateBatchExpert('${e.id}','name',this.value)" ${disabled}/>
+        <span class="be-status ${stClass}">${stText}</span>
+        <button class="be-del" onclick="removeBatchExpert('${e.id}')" ${disabled}>✕</button>
+      </div>
+      <textarea class="be-bg" rows="3"
+        placeholder="粘贴专家简历或背景描述..."
+        oninput="updateBatchExpert('${e.id}','bg',this.value)"
+        ${disabled}>${esc(e.bg)}</textarea>
+    </div>`;
+  }).join('');
+  document.getElementById('batchCount').textContent = batchExperts.length;
+}
+
+async function runBatch() {
+  const proj = document.getElementById('projectDesc').value.trim();
+  if (!proj) { showBatchErr('请先填写项目描述'); return; }
+  const pending = batchExperts.filter(e=>e.bg.trim() && e.status!=='done');
+  if (!pending.length) { showBatchErr('请至少添加一位专家的背景信息'); return; }
+
+  batchRunning = true;
+  document.getElementById('batchRunBtn').disabled = true;
+  document.getElementById('batchProg').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+
+  const total = pending.length;
+  let done = 0;
+
+  for (const expert of pending) {
+    expert.status = 'running';
+    renderBatchList();
+    updateBatchProgress(done, total, expert.name||'专家'+(done+1));
+
+    try {
+      const res = await fetch('/evaluate', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          expert_background: expert.bg,
+          project_description: proj,
+          expert_name: expert.name,
+          dimensions: dims.map(d=>({id:d.id,name:d.name.trim(),weight:d.weight,description:d.description||''}))
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail||'评估失败');
+      expert.status = 'done';
+      done++;
+      updateBatchProgress(done, total, '');
+    } catch(e) {
+      expert.status = 'failed';
+      done++;
+    }
+    renderBatchList();
+    await loadHistory();
+  }
+
+  batchRunning = false;
+  document.getElementById('batchRunBtn').disabled = false;
+  document.getElementById('batchProg').classList.remove('show');
+  // 自动展开历史
+  if (!histOpen) toggleHist();
+  else loadHistory();
+}
+
+function updateBatchProgress(done, total, currentName) {
+  document.getElementById('bpFill').style.width = (total>0 ? done/total*100 : 0) + '%';
+  document.getElementById('bpText').textContent = currentName
+    ? `正在评估：${currentName}（${done+1}/${total}）`
+    : `已完成 ${done}/${total}`;
+}
+
+function showBatchErr(m) {
+  document.getElementById('batchErrMsg').textContent = m;
+  document.getElementById('batchErrBox').classList.add('show');
+  setTimeout(()=>document.getElementById('batchErrBox').classList.remove('show'), 3000);
+}
+
+// ── 单个评估 ──
 async function runEval() {
   const proj = document.getElementById('projectDesc').value.trim();
   const exp = document.getElementById('expertBg').value.trim();
+  const name = document.getElementById('expertName').value.trim();
   if (!proj) { showErr('请填写项目描述'); return; }
   if (!exp) { showErr('请填写专家背景'); return; }
   if (dims.find(d=>!d.name.trim())) { showErr('存在未命名的维度'); return; }
   hideErr();
   document.getElementById('loading').classList.add('show');
   document.getElementById('results').classList.remove('show');
-  document.getElementById('evalBtn').disabled=true;
+  document.getElementById('evalBtn').disabled = true;
   try {
-    const res = await fetch('/evaluate',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        expert_background:exp,project_description:proj,
-        dimensions:dims.map(d=>({id:d.id,name:d.name.trim(),weight:d.weight,description:d.description||''}))
+    const res = await fetch('/evaluate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        expert_background: exp, project_description: proj, expert_name: name,
+        dimensions: dims.map(d=>({id:d.id,name:d.name.trim(),weight:d.weight,description:d.description||''}))
       })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail||'评估失败');
     render(data);
+    loadHistory();
   } catch(e) { showErr(e.message||'网络错误'); }
   finally {
     document.getElementById('loading').classList.remove('show');
-    document.getElementById('evalBtn').disabled=false;
+    document.getElementById('evalBtn').disabled = false;
   }
 }
 
 // ── 渲染结果 ──
 const RC = {
-  '强推荐':{bg:'rgba(0,217,192,.1)',border:'#00d9c0',color:'#00d9c0',icon:'★'},
-  '推荐':  {bg:'rgba(99,102,241,.1)',border:'#6366f1',color:'#818cf8',icon:'✓'},
-  '待定':  {bg:'rgba(245,158,11,.1)',border:'#f59e0b',color:'#f59e0b',icon:'◐'},
-  '不推荐':{bg:'rgba(244,63,94,.1)', border:'#f43f5e',color:'#f87171',icon:'✕'},
+  '强推荐':{bg:'rgba(0,122,110,.08)', border:'#009d8e',color:'#007a6e',icon:'★'},
+  '推荐':  {bg:'rgba(67,56,202,.07)', border:'#6366f1',color:'#4338ca',icon:'✓'},
+  '待定':  {bg:'rgba(180,83,9,.07)',  border:'#d97706',color:'#b45309',icon:'◐'},
+  '不推荐':{bg:'rgba(190,18,60,.07)', border:'#e11d48',color:'#be123c',icon:'✕'},
 };
 
 function sc(n){
-  if(n>=85)return'#00d9c0';
-  if(n>=70)return'#6366f1';
-  if(n>=55)return'#f59e0b';
-  return'#f43f5e';
+  if(n>=85)return'#007a6e';
+  if(n>=70)return'#4338ca';
+  if(n>=55)return'#b45309';
+  return'#be123c';
 }
 
 function setRing(id, txtId, score) {
-  const c = 163.4;
-  const offset = c - (score/100)*c;
-  const el = document.getElementById(id);
-  const txt = document.getElementById(txtId);
+  const c = 163.4, offset = c - (score/100)*c;
+  const el = document.getElementById(id), txt = document.getElementById(txtId);
   el.style.stroke = sc(score);
   el.setAttribute('stroke-dashoffset', offset);
-  txt.textContent = score;
-  txt.style.fill = sc(score);
+  txt.textContent = score; txt.style.fill = sc(score);
 }
 
 function render(d) {
-  // 推荐
   const rec = d.recommendation||'待定';
   const rs = RC[rec]||RC['待定'];
   const bn = document.getElementById('recBanner');
   bn.style.background=rs.bg; bn.style.borderColor=rs.border; bn.style.color=rs.color;
   const badge = document.getElementById('recBadge');
   badge.textContent=rs.icon; badge.style.borderColor=rs.color; badge.style.color=rs.color;
+  // 显示姓名
+  const nameEl = document.getElementById('recName');
+  const displayName = d.expert_name || document.getElementById('expertName').value.trim();
+  nameEl.textContent = displayName ? `专家：${displayName}` : '';
+  nameEl.style.display = displayName ? 'block' : 'none';
+
   document.getElementById('recVerdict').textContent=rec;
   document.getElementById('recVerdict').style.color=rs.color;
   document.getElementById('recReason').textContent=d.recommendation_reason||'';
 
-  // 环形评分
   const tot=d.weighted_total||0, mp=d.project_match?.score||0;
   setTimeout(()=>{ setRing('ringTotal','ringTotalTxt',tot); setRing('ringMatch','ringMatchTxt',mp); },150);
 
-  // 维度卡
+  // 潜力信号
+  const signals = d.potential_signals||[];
+  const potWrap = document.getElementById('potentialWrap');
+  const potList = document.getElementById('potentialList');
+  if (signals.length) {
+    potWrap.style.display = 'block';
+    potList.innerHTML = signals.map(s => `
+      <div class="ps-item">
+        <span class="ps-icon">⚡</span>
+        <div><div class="ps-signal">${esc(s.signal)}</div><div class="ps-rel">${esc(s.relevance)}</div></div>
+      </div>`).join('');
+  } else {
+    potWrap.style.display = 'none';
+  }
+
   document.getElementById('dimGrid').innerHTML=(d.dimension_scores||[]).map(s=>{
     const c=sc(s.score);
+    const inferredBadge = s.is_inferred ? '<span class="inferred-badge">推测</span>' : '';
     return `<div class="dc">
-      <div class="dc-top">
-        <div class="dc-name">${esc(s.name)}</div>
-        <div class="dc-right">
-          <div class="dc-score" style="color:${c}">${s.score}</div>
-          <div class="dc-w">×${s.weight}</div>
-        </div>
-      </div>
+      <div class="dc-top"><div class="dc-name">${esc(s.name)}${inferredBadge}</div>
+      <div style="text-align:right"><div class="dc-score" style="color:${c}">${s.score}</div><div class="dc-w">×${s.weight}</div></div></div>
       <div class="prog"><div class="prog-f" data-t="${s.score}" style="width:0%;background:${c}"></div></div>
       <div class="rows">
-        <div class="row"><span class="rtag tag-e">依据</span><span class="rtext">${esc(s.evidence||'-')}</span></div>
+        <div class="row"><span class="rtag tag-e">${s.is_inferred?'推测':'依据'}</span><span class="rtext">${esc(s.evidence||'-')}</span></div>
         <div class="row"><span class="rtag tag-r">风险</span><span class="rtext">${esc(s.risks||'-')}</span></div>
         <div class="row"><span class="rtag tag-s">建议</span><span class="rtext">${esc(s.suggestions||'-')}</span></div>
-      </div>
-    </div>`;
+      </div></div>`;
   }).join('');
 
-  // 薪资
   const sal=d.salary_estimate||{};
   document.getElementById('salNum').textContent=sal.range_low&&sal.range_high?`${sal.range_low}–${sal.range_high}`:'—';
   document.getElementById('salNote').textContent=sal.rationale||'';
@@ -874,7 +1019,6 @@ function render(d) {
   const db_el=document.getElementById('diffBadge');
   db_el.textContent=(sal.task_difficulty||'')+'难度';db_el.style.background=db;db_el.style.color=dc;
 
-  // 接受意愿
   const acc=d.acceptance_probability||{};
   const as=acc.score||0;
   const am={'高':['rgba(0,217,192,.12)','#00d9c0'],'中':['rgba(245,158,11,.12)','#f59e0b'],'低':['rgba(244,63,94,.12)','#f87171']};
@@ -884,7 +1028,6 @@ function render(d) {
   document.getElementById('accAna').textContent=acc.analysis||'-';
   document.getElementById('accCon').textContent=acc.concerns||'-';
 
-  // 培训成本
   const tc=d.training_cost_summary||{};
   const tm={'低':['rgba(0,217,192,.12)','#00d9c0','成本低'],'中':['rgba(245,158,11,.12)','#f59e0b','成本中'],'高':['rgba(244,63,94,.12)','#f87171','成本高']};
   const [tb,tcc,tl]=tm[tc.level]||tm['中'];
@@ -899,7 +1042,6 @@ function render(d) {
   ).join('')||`<div class="gi" style="color:var(--text-dim)">无</div>`;
   document.getElementById('onboard').textContent=tc.onboarding_plan||'-';
 
-  // 匹配度详情
   const pm=d.project_match||{};
   const ms_el=document.getElementById('mdScore');
   ms_el.textContent=mp;ms_el.style.color=sc(mp);
@@ -910,7 +1052,6 @@ function render(d) {
 
   document.getElementById('results').classList.add('show');
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
-
   setTimeout(()=>{
     document.querySelectorAll('.prog-f[data-t]').forEach(b=>{b.style.width=b.dataset.t+'%';});
     document.getElementById('mdBar').style.cssText+=`width:${mp}%;background:${sc(mp)}`;
@@ -918,69 +1059,12 @@ function render(d) {
   },200);
 }
 
-// ── utils ──
-function showErr(m){document.getElementById('errMsg').textContent=m;document.getElementById('errBox').classList.add('show');}
-function hideErr(){document.getElementById('errBox').classList.remove('show');}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function clearAll(){
-  document.getElementById('projectDesc').value='';
-  document.getElementById('expertBg').value='';
-  document.getElementById('projCount').textContent='0 chars';
-  document.getElementById('expertCount').textContent='0 chars';
-  document.getElementById('results').classList.remove('show');
-  hideErr();
-}
-function loadDemo(){
-  document.getElementById('projectDesc').value=`本项目为大语言模型指令跟随能力标注（SFT 数据构建）。
-
-标注任务：
-1. 对 AI 助手回复进行多维度质量评分（准确性/安全性/格式/有用性）
-2. 撰写高质量对比回复，用于 preference learning 数据
-3. 识别模型输出中的幻觉、有害内容和逻辑错误
-
-项目要求：
-- 具备 AI/NLP 基础知识，了解大模型工作原理
-- 有数据标注经验优先，逻辑清晰
-- 每周可投入 20 小时以上，项目周期 3 个月`;
-  document.getElementById('expertBg').value=`李明，NLP 算法工程师，硕士（计算语言学）。
-
-工作经历：
-- 某 AI 公司 高级 NLP 工程师（2021—至今）
-  · 主导 RLHF 数据标注流程设计，构建了 10 万+ 偏好对数据集
-  · 熟悉 ChatGPT/Claude 等大模型的能力边界和常见失败模式
-  · 开发自动化标注质量检测工具，将标注一致性提升至 92%
-
-- 某数据公司 数据标注专家（2019—2021）
-  · 负责 NLP 类项目标注规范制定和标注员培训
-
-技能：Python/PyTorch、Transformer 架构、英语读写流利
-特点：做事细致，逻辑严谨，有长期合作意愿`;
-  document.getElementById('projCount').textContent=document.getElementById('projectDesc').value.length+' chars';
-  document.getElementById('expertCount').textContent=document.getElementById('expertBg').value.length+' chars';
-}
-async function uploadPDF(input){
-  const file=input.files[0];if(!file)return;
-  hideErr();
-  const lbl=input.parentElement;
-  const orig=lbl.childNodes[0].textContent;
-  lbl.childNodes[0].textContent='…';
-  try{
-    const fd=new FormData();fd.append('file',file);
-    const r=await fetch('/parse-pdf',{method:'POST',body:fd});
-    const data=await r.json();
-    if(!r.ok) throw new Error(data.detail||'解析失败');
-    document.getElementById('expertBg').value=data.text;
-    document.getElementById('expertCount').textContent=data.text.length+' chars';
-  }catch(e){showErr('PDF 解析失败：'+e.message);}
-  finally{lbl.childNodes[0].textContent=orig;input.value='';}
-}
-
 // ── 历史记录 ──
 const RC_HIST = {
-  '强推荐':{bg:'rgba(0,217,192,.15)',color:'#00d9c0'},
-  '推荐':  {bg:'rgba(99,102,241,.15)',color:'#818cf8'},
-  '待定':  {bg:'rgba(245,158,11,.15)',color:'#f59e0b'},
-  '不推荐':{bg:'rgba(244,63,94,.15)', color:'#f87171'},
+  '强推荐':{bg:'rgba(0,122,110,.12)',color:'#007a6e'},
+  '推荐':  {bg:'rgba(67,56,202,.1)', color:'#4338ca'},
+  '待定':  {bg:'rgba(180,83,9,.1)',  color:'#b45309'},
+  '不推荐':{bg:'rgba(190,18,60,.1)', color:'#be123c'},
 };
 
 function relTime(iso) {
@@ -1000,32 +1084,62 @@ function toggleHist() {
   if (histOpen) loadHistory();
 }
 
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  const map = {all:0,'强推荐':1,'推荐':2,'待定':3,'不推荐':4};
+  document.querySelectorAll('.ftab')[map[f]||0].classList.add('active');
+  renderHistory();
+}
+
 async function loadHistory() {
   try {
     const r = await fetch('/api/history');
-    const rows = await r.json();
-    document.getElementById('histCount').textContent = rows.length;
-    const empty = document.getElementById('histEmpty');
-    const list = document.getElementById('histList');
-    if (!rows.length) { empty.style.display='block'; list.innerHTML=''; return; }
-    empty.style.display='none';
-    list.innerHTML = rows.map(row => {
-      const rs = RC_HIST[row.recommendation] || RC_HIST['待定'];
-      const scoreColor = sc(row.weighted_total||0);
-      return `<div class="hist-item" onclick="loadHistItem(${row.id})">
-        <span class="hi-badge" style="background:${rs.bg};color:${rs.color}">${row.recommendation||'—'}</span>
-        <div class="hi-body">
-          <div class="hi-proj">${esc(row.project_description)}</div>
-          <div class="hi-exp">${esc(row.expert_background)}</div>
-        </div>
-        <div class="hi-meta">
-          <div class="hi-score" style="color:${scoreColor}">${row.weighted_total??'—'}</div>
-          <div class="hi-time">${relTime(row.created_at)}</div>
-        </div>
-        <button class="hi-del" onclick="delHistItem(event,${row.id})">✕</button>
-      </div>`;
-    }).join('');
+    allHistory = await r.json();
+    updateHistCounts();
+    renderHistory();
   } catch(e) { console.error(e); }
+}
+
+function updateHistCounts() {
+  const counts = {'强推荐':0,'推荐':0,'待定':0,'不推荐':0};
+  allHistory.forEach(row => { if (counts[row.recommendation]!==undefined) counts[row.recommendation]++; });
+  document.getElementById('histCount').textContent = allHistory.length;
+  document.getElementById('fc-all').textContent = allHistory.length;
+  document.getElementById('fc-s').textContent = counts['强推荐'];
+  document.getElementById('fc-r').textContent = counts['推荐'];
+  document.getElementById('fc-p').textContent = counts['待定'];
+  document.getElementById('fc-n').textContent = counts['不推荐'];
+}
+
+function renderHistory() {
+  const filtered = currentFilter==='all' ? allHistory : allHistory.filter(r=>r.recommendation===currentFilter);
+  const empty = document.getElementById('histEmpty');
+  const list = document.getElementById('histList');
+  if (!filtered.length) {
+    empty.style.display='block';
+    empty.textContent = allHistory.length ? `当前筛选「${currentFilter}」无记录` : '暂无历史记录，完成首次评估后将自动保存';
+    list.innerHTML='';
+    return;
+  }
+  empty.style.display='none';
+  list.innerHTML = filtered.map(row => {
+    const rs = RC_HIST[row.recommendation] || {bg:'rgba(125,147,178,.1)',color:'var(--text-dim)'};
+    const scoreColor = sc(row.weighted_total||0);
+    const displayName = row.expert_name || '匿名专家';
+    return `<div class="hist-item" onclick="loadHistItem(${row.id})">
+      <span class="hi-badge" style="background:${rs.bg};color:${rs.color}">${row.recommendation||'—'}</span>
+      <div class="hi-body">
+        <div class="hi-name">${esc(displayName)}</div>
+        <div class="hi-proj">${esc(row.project_description)}</div>
+      </div>
+      <div class="hi-meta">
+        <div class="hi-score" style="color:${scoreColor}">${row.weighted_total??'—'}</div>
+        <div class="hi-time">${relTime(row.created_at)}</div>
+      </div>
+      <button class="hi-del" onclick="delHistItem(event,${row.id})">✕</button>
+    </div>`;
+  }).join('');
 }
 
 async function loadHistItem(id) {
@@ -1034,11 +1148,14 @@ async function loadHistItem(id) {
     const data = await r.json();
     document.getElementById('projectDesc').value = data.project_description;
     document.getElementById('expertBg').value = data.expert_background;
+    document.getElementById('expertName').value = data.expert_name||'';
     document.getElementById('projCount').textContent = data.project_description.length + ' chars';
     document.getElementById('expertCount').textContent = data.expert_background.length + ' chars';
+    // 切回单个模式
+    if (currentMode==='batch') switchMode('single');
     render(data.result);
     document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
-  } catch(e) { showErr('加载历史记录失败'); }
+  } catch(e) { console.error(e); }
 }
 
 async function delHistItem(e, id) {
@@ -1047,8 +1164,70 @@ async function delHistItem(e, id) {
   loadHistory();
 }
 
+// ── utils ──
+function showErr(m){document.getElementById('errMsg').textContent=m;document.getElementById('errBox').classList.add('show');}
+function hideErr(){document.getElementById('errBox').classList.remove('show');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function clearExpert(){
+  document.getElementById('expertBg').value='';
+  document.getElementById('expertName').value='';
+  document.getElementById('expertCount').textContent='0 chars';
+  document.getElementById('results').classList.remove('show');
+  hideErr();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function nextExpert(){
+  clearExpert();
+  document.getElementById('expertName').focus();
+}
+
+function loadDemo(){
+  document.getElementById('projectDesc').value=`本项目为大语言模型指令跟随能力标注（SFT 数据构建）。\n\n标注任务：\n1. 对 AI 助手回复进行多维度质量评分（准确性/安全性/格式/有用性）\n2. 撰写高质量对比回复，用于 preference learning 数据\n3. 识别模型输出中的幻觉、有害内容和逻辑错误\n\n项目要求：\n- 具备 AI/NLP 基础知识，了解大模型工作原理\n- 有数据标注经验优先，逻辑清晰\n- 每周可投入 20 小时以上，项目周期 3 个月`;
+  document.getElementById('expertBg').value=`李明，NLP 算法工程师，硕士（计算语言学）。\n\n工作经历：\n- 某 AI 公司 高级 NLP 工程师（2021—至今）\n  · 主导 RLHF 数据标注流程设计，构建了 10 万+ 偏好对数据集\n  · 熟悉 ChatGPT/Claude 等大模型的能力边界和常见失败模式\n  · 开发自动化标注质量检测工具，将标注一致性提升至 92%\n\n- 某数据公司 数据标注专家（2019—2021）\n  · 负责 NLP 类项目标注规范制定和标注员培训\n\n技能：Python/PyTorch、Transformer 架构、英语读写流利\n特点：做事细致，逻辑严谨，有长期合作意愿`;
+  document.getElementById('expertName').value='李明';
+  document.getElementById('projCount').textContent=document.getElementById('projectDesc').value.length+' chars';
+  document.getElementById('expertCount').textContent=document.getElementById('expertBg').value.length+' chars';
+  localStorage.setItem('proj_desc', document.getElementById('projectDesc').value);
+}
+
+async function uploadPDF(input){
+  const file=input.files[0];if(!file)return;
+  hideErr();
+  const lbl=input.parentElement;
+  const orig=lbl.childNodes[0].textContent;
+  lbl.childNodes[0].textContent='…';
+  try{
+    const fd=new FormData();fd.append('file',file);
+    const r=await fetch('/parse-pdf',{method:'POST',body:fd});
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.detail||'解析失败');
+    document.getElementById('expertBg').value=data.text;
+    document.getElementById('expertCount').textContent=data.text.length+' chars';
+  }catch(e){showErr('PDF 解析失败：'+e.message);}
+  finally{lbl.childNodes[0].textContent=orig;input.value='';}
+}
+
+// ── 初始化 ──
 initDims();
-loadHistory();
+
+// 恢复项目描述
+const savedProj = localStorage.getItem('proj_desc');
+if (savedProj) {
+  document.getElementById('projectDesc').value = savedProj;
+  document.getElementById('projCount').textContent = savedProj.length + ' chars';
+}
+
+// 自动加载历史，有记录则展开
+(async () => {
+  await loadHistory();
+  if (allHistory.length > 0) {
+    histOpen = true;
+    document.getElementById('histPanel').classList.add('open');
+    document.getElementById('histArrow').classList.add('open');
+  }
+})();
 </script>
 </body>
 </html>

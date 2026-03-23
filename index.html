@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>专家能力评估</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#07090f;
+  --surface:#0d1117;
+  --panel:#111827;
+  --lift:#1a2333;
+  --wire:#1e2d42;
+  --wire2:#253447;
+  --teal:#00d9c0;
+  --teal-dim:rgba(0,217,192,.12);
+  --teal-glow:rgba(0,217,192,.25);
+  --amber:#f59e0b;
+  --red:#f43f5e;
+  --text:#e2e8f0;
+  --text-mid:#7d93b2;
+  --text-dim:#3d5166;
+  --r:10px;
+  --r-lg:16px;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--ink);
+  color:var(--text);
+  min-height:100vh;
+  /* subtle dot grid */
+  background-image:radial-gradient(circle,rgba(0,217,192,.07) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+
+/* ──── HEADER ──── */
+header{
+  position:relative;
+  border-bottom:1px solid var(--wire);
+  background:linear-gradient(180deg,rgba(0,217,192,.04) 0%,transparent 100%);
+  padding:40px 32px 32px;
+  overflow:hidden;
+}
+header::before{
+  content:'';
+  position:absolute;
+  top:-60px;left:50%;
+  transform:translateX(-50%);
+  width:600px;height:200px;
+  background:radial-gradient(ellipse,rgba(0,217,192,.15) 0%,transparent 70%);
+  pointer-events:none;
+}
+.h-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:600;
+  color:var(--teal);letter-spacing:.15em;
+  text-transform:uppercase;margin-bottom:20px;
+}
+.h-eyebrow::before{content:'';width:24px;height:1px;background:var(--teal);}
+.h-eyebrow::after{content:'';width:24px;height:1px;background:var(--teal);}
+
+header h1{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(32px,5vw,52px);
+  font-weight:400;
+  font-style:italic;
+  letter-spacing:-.01em;
+  line-height:1.1;
+  margin-bottom:12px;
+  color:#fff;
+}
+header h1 em{
+  font-style:normal;
+  color:var(--teal);
+}
+header p{
+  font-size:14px;
+  color:var(--text-mid);
+  letter-spacing:.02em;
+  max-width:500px;
+  margin:0 auto;
+  text-align:center;
+}
+
+.container{max-width:1180px;margin:0 auto;padding:36px 24px 80px;}
+
+/* ──── SECTION HEADER ──── */
+.s-head{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:16px;
+}
+.s-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;
+  color:var(--teal);
+  background:var(--teal-dim);
+  border:1px solid rgba(0,217,192,.2);
+  border-radius:4px;
+  padding:2px 8px;
+  letter-spacing:.05em;
+}
+.s-title{
+  font-size:13px;font-weight:600;
+  color:var(--text-mid);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+/* ──── GRID ──── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:800px){.g2{grid-template-columns:1fr;}}
+
+/* ──── PANEL ──── */
+.panel{
+  background:var(--panel);
+  border:1px solid var(--wire);
+  border-radius:var(--r-lg);
+  padding:22px;
+  position:relative;
+}
+.panel::before{
+  content:'';
+  position:absolute;
+  inset:0;border-radius:var(--r-lg);
+  background:linear-gradient(135deg,rgba(0,217,192,.03) 0%,transparent 50%);
+  pointer-events:none;
+}
+
+.panel-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:600;
+  color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:.12em;
+  margin-bottom:10px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+
+/* ──── INPUTS ──── */
+textarea,input[type=text]{
+  width:100%;
+  background:var(--lift);
+  border:1px solid var(--wire2);
+  border-radius:var(--r);
+  padding:13px 15px;
+  color:var(--text);
+  font-size:13px;font-family:'DM Sans',sans-serif;
+  outline:none;resize:vertical;line-height:1.7;
+  transition:border-color .2s,box-shadow .2s;
+}
+textarea:focus,input:focus{
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px var(--teal-glow);
+}
+textarea::placeholder,input::placeholder{color:var(--text-dim);}
+.char-c{font-size:11px;color:var(--text-dim);text-align:right;margin-top:5px;font-family:'JetBrains Mono',monospace;}
+
+.pdf-lbl{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.08em;
+  color:var(--teal);cursor:pointer;
+  border:1px solid rgba(0,217,192,.3);
+  border-radius:6px;padding:3px 10px;
+  transition:all .15s;
+}
+.pdf-lbl:hover{background:var(--teal-dim);}
+
+/* ──── DIM EDITOR ──── */
+.dim-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.dim-row{
+  background:var(--lift);
+  border:1px solid var(--wire2);
+  border-radius:var(--r);
+  padding:11px 14px;
+  transition:border-color .2s;
+}
+.dim-row:focus-within{border-color:rgba(0,217,192,.4);}
+.dim-top{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.dim-name{
+  flex:1;background:transparent;border:none;
+  color:var(--text);font-size:13px;font-weight:600;
+  font-family:'DM Sans',sans-serif;outline:none;
+}
+.dim-w-wrap{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.dim-w-lbl{font-size:10px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;}
+input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none;background:none;padding:0;height:4px;}
+.dim-w-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--teal);min-width:24px;text-align:right;}
+.dim-del{
+  width:24px;height:24px;border-radius:6px;border:none;
+  cursor:pointer;font-size:12px;
+  background:rgba(244,63,94,.08);color:#f87171;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .15s;
+}
+.dim-del:hover:not(:disabled){background:rgba(244,63,94,.18);}
+.dim-del:disabled{opacity:.2;cursor:not-allowed;}
+.dim-desc{
+  width:100%;background:transparent;border:none;
+  border-bottom:1px solid var(--wire2);
+  padding:3px 0;color:var(--text-mid);
+  font-size:12px;font-family:'DM Sans',sans-serif;
+  outline:none;
+}
+.dim-desc:focus{border-color:var(--teal);color:var(--text);}
+.wbar{height:2px;background:var(--wire2);border-radius:1px;margin-top:8px;}
+.wbar-fill{height:100%;background:linear-gradient(90deg,var(--teal),#00b4d8);border-radius:1px;transition:width .3s ease;}
+
+/* ──── BUTTONS ──── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  border:none;cursor:pointer;
+  border-radius:var(--r);font-family:'DM Sans',sans-serif;
+  font-weight:600;transition:all .2s;white-space:nowrap;
+}
+.btn-primary{
+  background:var(--teal);color:var(--ink);
+  font-size:14px;padding:13px 32px;
+  box-shadow:0 0 24px rgba(0,217,192,.3);
+  letter-spacing:.01em;
+}
+.btn-primary:hover{box-shadow:0 0 40px rgba(0,217,192,.5);transform:translateY(-1px);}
+.btn-primary:active{transform:translateY(0);}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-ghost{
+  background:transparent;
+  border:1px solid var(--wire2);
+  color:var(--text-mid);
+  font-size:13px;padding:10px 18px;
+}
+.btn-ghost:hover{border-color:var(--text-mid);color:var(--text);}
+
+.submit-bar{
+  display:flex;align-items:center;gap:12px;
+  margin-top:24px;padding-top:24px;
+  border-top:1px solid var(--wire);
+  flex-wrap:wrap;
+}
+
+/* ──── ERROR ──── */
+.err{
+  display:none;
+  background:rgba(244,63,94,.08);
+  border:1px solid rgba(244,63,94,.25);
+  border-radius:var(--r);
+  padding:11px 16px;color:#fda4af;
+  font-size:13px;margin-top:14px;
+}
+.err.show{display:flex;gap:8px;align-items:center;}
+
+/* ──── LOADING ──── */
+.loading{display:none;text-align:center;padding:80px 20px;}
+.loading.show{display:block;}
+.ld-ring{
+  width:56px;height:56px;
+  border-radius:50%;
+  border:2px solid var(--wire2);
+  border-top-color:var(--teal);
+  animation:spin .8s linear infinite;
+  margin:0 auto 24px;
+  box-shadow:0 0 24px rgba(0,217,192,.2);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-title{
+  font-family:'Instrument Serif',serif;font-style:italic;
+  font-size:22px;color:#fff;margin-bottom:8px;
+}
+.ld-sub{font-size:12px;color:var(--text-dim);letter-spacing:.03em;}
+.dots::after{content:'';animation:dots 1.5s infinite;}
+@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+
+/* ──── DIVIDER ──── */
+.divider{
+  display:flex;align-items:center;gap:14px;
+  margin:32px 0 20px;
+}
+.div-line{flex:1;height:1px;background:var(--wire);}
+.div-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:.12em;white-space:nowrap;
+}
+
+/* ──── RESULTS ──── */
+#results{display:none;}
+#results.show{display:block;}
+
+/* Fade-up animation for result cards */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.fade-up{animation:fadeUp .5s ease both;}
+
+/* Recommendation banner */
+.rec{
+  border-radius:var(--r-lg);
+  border:1px solid;
+  padding:28px 30px;
+  display:flex;align-items:flex-start;gap:22px;
+  margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.rec::after{
+  content:'';position:absolute;
+  top:-40px;right:-40px;
+  width:200px;height:200px;
+  border-radius:50%;
+  background:radial-gradient(circle,currentColor 0%,transparent 70%);
+  opacity:.06;pointer-events:none;
+}
+.rec-badge{
+  width:52px;height:52px;
+  border-radius:50%;border:2px solid currentColor;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+}
+.rec-body{flex:1;}
+.rec-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;opacity:.6;margin-bottom:6px;
+}
+.rec-verdict{
+  font-family:'Instrument Serif',serif;
+  font-size:28px;font-weight:400;
+  margin-bottom:10px;line-height:1.2;
+}
+.rec-reason{font-size:14px;opacity:.8;line-height:1.75;color:var(--text);}
+
+/* Score tiles */
+.score-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.stile{
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r-lg);padding:22px 24px;
+  display:flex;align-items:center;gap:20px;
+}
+.sring-svg{flex-shrink:0;}
+.sring-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:18px;font-weight:700;
+}
+.stile-info{}
+.stile-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.stile-sub{font-size:12px;color:var(--text-mid);}
+
+/* Dim result cards */
+.dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+@media(max-width:700px){.dim-grid{grid-template-columns:1fr;}}
+.dc{
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r-lg);padding:18px 20px;
+  transition:border-color .2s,transform .2s;
+}
+.dc:hover{border-color:var(--wire2);transform:translateY(-1px);}
+.dc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.dc-name{font-size:14px;font-weight:600;}
+.dc-right{text-align:right;}
+.dc-score{
+  font-family:'JetBrains Mono',monospace;
+  font-size:32px;font-weight:700;line-height:1;
+}
+.dc-w{font-size:11px;color:var(--text-dim);margin-top:2px;font-family:'JetBrains Mono',monospace;}
+.prog{height:4px;background:var(--lift);border-radius:2px;margin-bottom:14px;overflow:hidden;}
+.prog-f{height:100%;border-radius:2px;transition:width .9s cubic-bezier(.4,0,.2,1);}
+.rows{display:flex;flex-direction:column;gap:8px;}
+.row{display:flex;gap:8px;align-items:flex-start;}
+.rtag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:2px 6px;border-radius:3px;
+  flex-shrink:0;margin-top:3px;
+}
+.tag-e{background:rgba(0,217,192,.12);color:var(--teal);}
+.tag-r{background:rgba(245,158,11,.12);color:var(--amber);}
+.tag-s{background:rgba(125,147,178,.1);color:var(--text-mid);}
+.rtext{font-size:12px;color:var(--text-mid);line-height:1.65;}
+
+/* Insight cards */
+.insight-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:700px){.insight-pair{grid-template-columns:1fr;}}
+.ic{
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r-lg);padding:20px 22px;
+}
+.ic-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.ic-title{font-size:13px;font-weight:600;color:var(--text-mid);}
+.ic-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.06em;
+  padding:3px 10px;border-radius:20px;
+}
+.salary-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:36px;font-weight:700;
+  color:var(--teal);line-height:1;letter-spacing:-.02em;
+  margin-bottom:3px;
+}
+.salary-unit{font-size:11px;color:var(--text-dim);margin-bottom:12px;font-family:'JetBrains Mono',monospace;}
+.salary-note{font-size:12px;color:var(--text-mid);line-height:1.65;}
+
+/* Training */
+.tc{
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r-lg);padding:20px 22px;margin-bottom:12px;
+}
+.tc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.tc-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+@media(max-width:600px){.tc-cols{grid-template-columns:1fr;}}
+.tc-col-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:10px;
+}
+.gi{
+  display:flex;gap:7px;align-items:baseline;
+  font-size:12px;color:var(--text-mid);
+  padding:5px 0;border-bottom:1px solid var(--wire);
+  line-height:1.55;
+}
+.gi:last-child{border-bottom:none;}
+.gi-dot{flex-shrink:0;font-size:10px;}
+
+/* Match detail */
+.md{
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r-lg);padding:20px 22px;
+}
+.md-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.md-score{
+  font-family:'JetBrains Mono',monospace;
+  font-size:30px;font-weight:700;
+}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--wire2);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-eyebrow">Expert Evaluation System</div>
+  <h1 style="text-align:center">专家<em>能力评估</em>平台</h1>
+  <p>AI 多维度分析 · 项目匹配度 · 薪资水位 · 培训成本</p>
+</header>
+
+<div class="container">
+
+  <!-- ① 输入 -->
+  <div class="s-head" style="margin-top:0">
+    <span class="s-num">01</span>
+    <span class="s-title">填写评估信息</span>
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="panel">
+      <div class="panel-label">项目描述</div>
+      <textarea id="projectDesc" rows="9"
+        placeholder="标注任务类型、难度要求、核心技能要求...&#10;&#10;例：本项目为 LLM 指令跟随标注，需对 AI 回复进行多维质量评分（准确性/安全性），要求标注者具备基础 NLP 知识，能识别模型幻觉..."></textarea>
+      <div class="char-c" id="projCount">0 chars</div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">
+        专家背景
+        <label class="pdf-lbl">
+          ↑ PDF
+          <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="uploadPDF(this)">
+        </label>
+      </div>
+      <textarea id="expertBg" rows="9"
+        placeholder="专家简历、自我介绍、能力描述...&#10;&#10;例：张某，NLP 算法工程师，5 年经验，熟悉 Transformer 架构，参与过 RLHF 数据构建..."></textarea>
+      <div class="char-c" id="expertCount">0 chars</div>
+    </div>
+  </div>
+
+  <!-- ② 维度 -->
+  <div class="s-head">
+    <span class="s-num">02</span>
+    <span class="s-title">评估维度配置</span>
+    <span style="font-size:11px;color:var(--text-dim);margin-left:4px">可增删·改名·调权重</span>
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <div class="dim-list" id="dimList"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="addDim()" style="font-size:12px;padding:8px 14px">＋ 添加维度</button>
+      <button class="btn btn-ghost" onclick="resetDims()" style="font-size:12px;padding:8px 14px">↺ 恢复默认</button>
+    </div>
+  </div>
+
+  <div class="err" id="errBox">⚠ <span id="errMsg"></span></div>
+
+  <div class="submit-bar">
+    <button class="btn btn-primary" id="evalBtn" onclick="runEval()">→ 开始评估</button>
+    <button class="btn btn-ghost" onclick="loadDemo()">示例数据</button>
+    <button class="btn btn-ghost" onclick="clearAll()">清空</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="ld-ring"></div>
+    <div class="ld-title">分析中<span class="dots"></span></div>
+    <div class="ld-sub">AI 正在综合项目描述与专家背景进行多维度评估，通常需要 30–120 秒</div>
+  </div>
+
+  <!-- ③ 结果 -->
+  <div id="results">
+
+    <div class="divider"><div class="div-line"></div><div class="div-label">评估结果</div><div class="div-line"></div></div>
+
+    <!-- 推荐结论 -->
+    <div class="rec fade-up" id="recBanner" style="animation-delay:.05s">
+      <div class="rec-badge" id="recBadge"></div>
+      <div class="rec-body">
+        <div class="rec-eyebrow">综合评估结论</div>
+        <div class="rec-verdict" id="recVerdict"></div>
+        <div class="rec-reason" id="recReason"></div>
+      </div>
+    </div>
+
+    <!-- 总分 -->
+    <div class="score-row fade-up" style="animation-delay:.15s">
+      <div class="stile">
+        <svg class="sring-svg" width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="#1a2333" stroke-width="5"/>
+          <circle id="ringTotal" cx="32" cy="32" r="26" fill="none" stroke="#00d9c0" stroke-width="5"
+                  stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"
+                  transform="rotate(-90 32 32)" style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)"/>
+          <text x="32" y="37" text-anchor="middle"
+                font-family="JetBrains Mono,monospace" font-size="14" font-weight="700"
+                fill="#e2e8f0" id="ringTotalTxt">—</text>
+        </svg>
+        <div class="stile-info">
+          <div class="stile-name">综合加权得分</div>
+          <div class="stile-sub">各维度权重加权均值</div>
+        </div>
+      </div>
+      <div class="stile">
+        <svg class="sring-svg" width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="#1a2333" stroke-width="5"/>
+          <circle id="ringMatch" cx="32" cy="32" r="26" fill="none" stroke="#00d9c0" stroke-width="5"
+                  stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"
+                  transform="rotate(-90 32 32)" style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)"/>
+          <text x="32" y="37" text-anchor="middle"
+                font-family="JetBrains Mono,monospace" font-size="14" font-weight="700"
+                fill="#e2e8f0" id="ringMatchTxt">—</text>
+        </svg>
+        <div class="stile-info">
+          <div class="stile-name">项目匹配度</div>
+          <div class="stile-sub">与本项目整体契合程度</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 维度详分 -->
+    <div class="divider fade-up" style="animation-delay:.2s">
+      <div class="div-line"></div><div class="div-label">各维度详细评分</div><div class="div-line"></div>
+    </div>
+    <div class="dim-grid fade-up" id="dimGrid" style="animation-delay:.25s"></div>
+
+    <!-- 薪资 + 意愿 -->
+    <div class="divider fade-up" style="animation-delay:.3s">
+      <div class="div-line"></div><div class="div-label">薪资与接受意愿</div><div class="div-line"></div>
+    </div>
+    <div class="insight-pair fade-up" style="animation-delay:.35s">
+      <div class="ic">
+        <div class="ic-head">
+          <div class="ic-title">薪资水位预估</div>
+          <span class="ic-badge" id="diffBadge"></span>
+        </div>
+        <div class="salary-num" id="salNum">—</div>
+        <div class="salary-unit">元 / 小时</div>
+        <div class="salary-note" id="salNote"></div>
+      </div>
+      <div class="ic">
+        <div class="ic-head">
+          <div class="ic-title">接受意愿分析</div>
+          <span class="ic-badge" id="accBadge"></span>
+        </div>
+        <div class="prog" style="margin-bottom:14px">
+          <div class="prog-f" id="accBar" style="width:0%"></div>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="rtag tag-e">分析</span><span class="rtext" id="accAna"></span></div>
+          <div class="row"><span class="rtag tag-r">顾虑</span><span class="rtext" id="accCon"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 培训成本 -->
+    <div class="divider fade-up" style="animation-delay:.4s">
+      <div class="div-line"></div><div class="div-label">培训成本分析</div><div class="div-line"></div>
+    </div>
+    <div class="tc fade-up" style="animation-delay:.45s">
+      <div class="tc-head">
+        <span style="font-size:13px;font-weight:600;color:var(--text-mid)">上手培训详情</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="ic-badge" id="tcBadge"></span>
+          <span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace" id="tcDays"></span>
+        </div>
+      </div>
+      <div class="tc-cols">
+        <div>
+          <div class="tc-col-label" style="color:#34d399">✓ 可培训弥补</div>
+          <div id="trainable"></div>
+        </div>
+        <div>
+          <div class="tc-col-label" style="color:#f87171">✕ 难以速成</div>
+          <div id="nonTrainable"></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="rtag tag-s">建议</span>
+        <span class="rtext" id="onboard"></span>
+      </div>
+    </div>
+
+    <!-- 匹配度详情 -->
+    <div class="divider fade-up" style="animation-delay:.5s">
+      <div class="div-line"></div><div class="div-label">项目匹配度详情</div><div class="div-line"></div>
+    </div>
+    <div class="md fade-up" style="animation-delay:.55s">
+      <div class="md-head">
+        <span style="font-size:13px;font-weight:600;color:var(--text-mid)">整体契合分析</span>
+        <span class="md-score" id="mdScore"></span>
+      </div>
+      <div class="prog" style="margin-bottom:14px">
+        <div class="prog-f" id="mdBar" style="width:0%"></div>
+      </div>
+      <div class="rows" id="mdRows"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let dims = [];
+
+// ── 维度管理 ──
+async function initDims() {
+  try {
+    const r = await fetch('/api/default-dimensions');
+    const data = await r.json();
+    dims = data.map(d => ({...d, id:'d'+Date.now()+'_'+Math.random().toString(36).slice(2)}));
+    renderDims();
+  } catch(e) { console.error(e); }
+}
+
+function renderDims() {
+  const tot = dims.reduce((s,d) => s+d.weight, 0);
+  document.getElementById('dimList').innerHTML = dims.map(d => `
+    <div class="dim-row" data-id="${d.id}">
+      <div class="dim-top">
+        <input class="dim-name" value="${esc(d.name)}" oninput="upd('${d.id}','name',this.value)" placeholder="维度名称"/>
+        <div class="dim-w-wrap">
+          <span class="dim-w-lbl">weight</span>
+          <input type="range" min=".5" max="3" step=".1" value="${d.weight}"
+            oninput="upd('${d.id}','weight',+this.value);this.nextElementSibling.textContent=parseFloat(this.value).toFixed(1)"/>
+          <span class="dim-w-val">${d.weight.toFixed(1)}</span>
+        </div>
+        <button class="dim-del" onclick="delDim('${d.id}')" ${dims.length<=1?'disabled':''}>✕</button>
+      </div>
+      <input class="dim-desc" value="${esc(d.description)}" oninput="upd('${d.id}','description',this.value)"
+             placeholder="维度说明（可选，帮助 AI 更准确评分）"/>
+      <div class="wbar"><div class="wbar-fill" style="width:${(d.weight/tot*100).toFixed(1)}%"></div></div>
+    </div>`).join('');
+}
+
+function upd(id, f, v) {
+  const d = dims.find(x=>x.id===id);
+  if (!d) return;
+  d[f] = f==='weight'?parseFloat(v):v;
+  if (f==='weight') renderDims();
+}
+function delDim(id) {
+  if (dims.length<=1) return;
+  dims = dims.filter(d=>d.id!==id);
+  renderDims();
+}
+function addDim() {
+  if (dims.length>=10) { showErr('最多 10 个维度'); return; }
+  const id = 'd'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  dims.push({id,name:'新维度',weight:1.0,description:''});
+  renderDims();
+  setTimeout(()=>{const els=document.querySelectorAll('.dim-name');els[els.length-1].select();},50);
+}
+async function resetDims() { await initDims(); }
+
+// ── 字符计数 ──
+document.getElementById('projectDesc').addEventListener('input',function(){
+  document.getElementById('projCount').textContent=this.value.length+' chars';
+});
+document.getElementById('expertBg').addEventListener('input',function(){
+  document.getElementById('expertCount').textContent=this.value.length+' chars';
+});
+
+// ── 评估 ──
+async function runEval() {
+  const proj = document.getElementById('projectDesc').value.trim();
+  const exp = document.getElementById('expertBg').value.trim();
+  if (!proj) { showErr('请填写项目描述'); return; }
+  if (!exp) { showErr('请填写专家背景'); return; }
+  if (dims.find(d=>!d.name.trim())) { showErr('存在未命名的维度'); return; }
+  hideErr();
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('evalBtn').disabled=true;
+  try {
+    const res = await fetch('/evaluate',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        expert_background:exp,project_description:proj,
+        dimensions:dims.map(d=>({id:d.id,name:d.name.trim(),weight:d.weight,description:d.description||''}))
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail||'评估失败');
+    render(data);
+  } catch(e) { showErr(e.message||'网络错误'); }
+  finally {
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('evalBtn').disabled=false;
+  }
+}
+
+// ── 渲染结果 ──
+const RC = {
+  '强推荐':{bg:'rgba(0,217,192,.1)',border:'#00d9c0',color:'#00d9c0',icon:'★'},
+  '推荐':  {bg:'rgba(99,102,241,.1)',border:'#6366f1',color:'#818cf8',icon:'✓'},
+  '待定':  {bg:'rgba(245,158,11,.1)',border:'#f59e0b',color:'#f59e0b',icon:'◐'},
+  '不推荐':{bg:'rgba(244,63,94,.1)', border:'#f43f5e',color:'#f87171',icon:'✕'},
+};
+
+function sc(n){
+  if(n>=85)return'#00d9c0';
+  if(n>=70)return'#6366f1';
+  if(n>=55)return'#f59e0b';
+  return'#f43f5e';
+}
+
+function setRing(id, txtId, score) {
+  const c = 163.4;
+  const offset = c - (score/100)*c;
+  const el = document.getElementById(id);
+  const txt = document.getElementById(txtId);
+  el.style.stroke = sc(score);
+  el.setAttribute('stroke-dashoffset', offset);
+  txt.textContent = score;
+  txt.style.fill = sc(score);
+}
+
+function render(d) {
+  // 推荐
+  const rec = d.recommendation||'待定';
+  const rs = RC[rec]||RC['待定'];
+  const bn = document.getElementById('recBanner');
+  bn.style.background=rs.bg; bn.style.borderColor=rs.border; bn.style.color=rs.color;
+  const badge = document.getElementById('recBadge');
+  badge.textContent=rs.icon; badge.style.borderColor=rs.color; badge.style.color=rs.color;
+  document.getElementById('recVerdict').textContent=rec;
+  document.getElementById('recVerdict').style.color=rs.color;
+  document.getElementById('recReason').textContent=d.recommendation_reason||'';
+
+  // 环形评分
+  const tot=d.weighted_total||0, mp=d.project_match?.score||0;
+  setTimeout(()=>{ setRing('ringTotal','ringTotalTxt',tot); setRing('ringMatch','ringMatchTxt',mp); },150);
+
+  // 维度卡
+  document.getElementById('dimGrid').innerHTML=(d.dimension_scores||[]).map(s=>{
+    const c=sc(s.score);
+    return `<div class="dc">
+      <div class="dc-top">
+        <div class="dc-name">${esc(s.name)}</div>
+        <div class="dc-right">
+          <div class="dc-score" style="color:${c}">${s.score}</div>
+          <div class="dc-w">×${s.weight}</div>
+        </div>
+      </div>
+      <div class="prog"><div class="prog-f" data-t="${s.score}" style="width:0%;background:${c}"></div></div>
+      <div class="rows">
+        <div class="row"><span class="rtag tag-e">依据</span><span class="rtext">${esc(s.evidence||'-')}</span></div>
+        <div class="row"><span class="rtag tag-r">风险</span><span class="rtext">${esc(s.risks||'-')}</span></div>
+        <div class="row"><span class="rtag tag-s">建议</span><span class="rtext">${esc(s.suggestions||'-')}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // 薪资
+  const sal=d.salary_estimate||{};
+  document.getElementById('salNum').textContent=sal.range_low&&sal.range_high?`${sal.range_low}–${sal.range_high}`:'—';
+  document.getElementById('salNote').textContent=sal.rationale||'';
+  const dm={'低':['rgba(0,217,192,.12)','#00d9c0'],'中':['rgba(245,158,11,.12)','#f59e0b'],'高':['rgba(244,63,94,.12)','#f87171']};
+  const [db,dc]=dm[sal.task_difficulty]||dm['中'];
+  const db_el=document.getElementById('diffBadge');
+  db_el.textContent=(sal.task_difficulty||'')+'难度';db_el.style.background=db;db_el.style.color=dc;
+
+  // 接受意愿
+  const acc=d.acceptance_probability||{};
+  const as=acc.score||0;
+  const am={'高':['rgba(0,217,192,.12)','#00d9c0'],'中':['rgba(245,158,11,.12)','#f59e0b'],'低':['rgba(244,63,94,.12)','#f87171']};
+  const [ab,ac]=am[acc.level]||am['中'];
+  const ab_el=document.getElementById('accBadge');
+  ab_el.textContent=(acc.level||'-')+'意愿';ab_el.style.background=ab;ab_el.style.color=ac;
+  document.getElementById('accAna').textContent=acc.analysis||'-';
+  document.getElementById('accCon').textContent=acc.concerns||'-';
+
+  // 培训成本
+  const tc=d.training_cost_summary||{};
+  const tm={'低':['rgba(0,217,192,.12)','#00d9c0','成本低'],'中':['rgba(245,158,11,.12)','#f59e0b','成本中'],'高':['rgba(244,63,94,.12)','#f87171','成本高']};
+  const [tb,tcc,tl]=tm[tc.level]||tm['中'];
+  const tc_el=document.getElementById('tcBadge');
+  tc_el.textContent=tl;tc_el.style.background=tb;tc_el.style.color=tcc;
+  document.getElementById('tcDays').textContent=tc.estimated_days?`预计 ${tc.estimated_days} 天`:'';
+  document.getElementById('trainable').innerHTML=(tc.trainable_gaps||[]).map(g=>
+    `<div class="gi"><span class="gi-dot" style="color:#34d399">▸</span>${esc(g)}</div>`
+  ).join('')||`<div class="gi" style="color:var(--text-dim)">无明显缺口</div>`;
+  document.getElementById('nonTrainable').innerHTML=(tc.non_trainable_gaps||[]).map(g=>
+    `<div class="gi"><span class="gi-dot" style="color:#f87171">▸</span>${esc(g)}</div>`
+  ).join('')||`<div class="gi" style="color:var(--text-dim)">无</div>`;
+  document.getElementById('onboard').textContent=tc.onboarding_plan||'-';
+
+  // 匹配度详情
+  const pm=d.project_match||{};
+  const ms_el=document.getElementById('mdScore');
+  ms_el.textContent=mp;ms_el.style.color=sc(mp);
+  document.getElementById('mdRows').innerHTML=`
+    <div class="row"><span class="rtag tag-e">依据</span><span class="rtext">${esc(pm.evidence||'-')}</span></div>
+    <div class="row"><span class="rtag tag-r">风险</span><span class="rtext">${esc(pm.risks||'-')}</span></div>
+    <div class="row"><span class="rtag tag-s">建议</span><span class="rtext">${esc(pm.suggestions||'-')}</span></div>`;
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+
+  setTimeout(()=>{
+    document.querySelectorAll('.prog-f[data-t]').forEach(b=>{b.style.width=b.dataset.t+'%';});
+    document.getElementById('mdBar').style.cssText+=`width:${mp}%;background:${sc(mp)}`;
+    document.getElementById('accBar').style.cssText+=`width:${as}%;background:${ac}`;
+  },200);
+}
+
+// ── utils ──
+function showErr(m){document.getElementById('errMsg').textContent=m;document.getElementById('errBox').classList.add('show');}
+function hideErr(){document.getElementById('errBox').classList.remove('show');}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function clearAll(){
+  document.getElementById('projectDesc').value='';
+  document.getElementById('expertBg').value='';
+  document.getElementById('projCount').textContent='0 chars';
+  document.getElementById('expertCount').textContent='0 chars';
+  document.getElementById('results').classList.remove('show');
+  hideErr();
+}
+function loadDemo(){
+  document.getElementById('projectDesc').value=`本项目为大语言模型指令跟随能力标注（SFT 数据构建）。
+
+标注任务：
+1. 对 AI 助手回复进行多维度质量评分（准确性/安全性/格式/有用性）
+2. 撰写高质量对比回复，用于 preference learning 数据
+3. 识别模型输出中的幻觉、有害内容和逻辑错误
+
+项目要求：
+- 具备 AI/NLP 基础知识，了解大模型工作原理
+- 有数据标注经验优先，逻辑清晰
+- 每周可投入 20 小时以上，项目周期 3 个月`;
+  document.getElementById('expertBg').value=`李明，NLP 算法工程师，硕士（计算语言学）。
+
+工作经历：
+- 某 AI 公司 高级 NLP 工程师（2021—至今）
+  · 主导 RLHF 数据标注流程设计，构建了 10 万+ 偏好对数据集
+  · 熟悉 ChatGPT/Claude 等大模型的能力边界和常见失败模式
+  · 开发自动化标注质量检测工具，将标注一致性提升至 92%
+
+- 某数据公司 数据标注专家（2019—2021）
+  · 负责 NLP 类项目标注规范制定和标注员培训
+
+技能：Python/PyTorch、Transformer 架构、英语读写流利
+特点：做事细致，逻辑严谨，有长期合作意愿`;
+  document.getElementById('projCount').textContent=document.getElementById('projectDesc').value.length+' chars';
+  document.getElementById('expertCount').textContent=document.getElementById('expertBg').value.length+' chars';
+}
+async function uploadPDF(input){
+  const file=input.files[0];if(!file)return;
+  hideErr();
+  const lbl=input.parentElement;
+  const orig=lbl.childNodes[0].textContent;
+  lbl.childNodes[0].textContent='…';
+  try{
+    const fd=new FormData();fd.append('file',file);
+    const r=await fetch('/parse-pdf',{method:'POST',body:fd});
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.detail||'解析失败');
+    document.getElementById('expertBg').value=data.text;
+    document.getElementById('expertCount').textContent=data.text.length+' chars';
+  }catch(e){showErr('PDF 解析失败：'+e.message);}
+  finally{lbl.childNodes[0].textContent=orig;input.value='';}
+}
+
+initDims();
+</script>
+</body>
+</html>

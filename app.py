@@ -8,6 +8,7 @@ import io
 import json
 import os
 import re
+import secrets
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -39,6 +40,20 @@ def init_db():
             result_json TEXT NOT NULL
         )
     """)
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS interview_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT UNIQUE NOT NULL,
+            eval_id INTEGER,
+            questions_json TEXT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            answers_json TEXT,
+            interview_result_json TEXT,
+            created_at TEXT NOT NULL,
+            submitted_at TEXT,
+            FOREIGN KEY (eval_id) REFERENCES evaluations(id)
+        )
+    """)
     # 兼容旧表结构
     try:
         con.execute("ALTER TABLE evaluations ADD COLUMN expert_name TEXT DEFAULT ''")
@@ -47,9 +62,9 @@ def init_db():
     con.commit()
     con.close()
 
-def save_evaluation(project_desc: str, expert_bg: str, result: dict, expert_name: str = ""):
+def save_evaluation(project_desc: str, expert_bg: str, result: dict, expert_name: str = "") -> int:
     con = sqlite3.connect(DB_PATH)
-    con.execute(
+    cur = con.execute(
         "INSERT INTO evaluations (created_at, expert_name, project_description, expert_background, recommendation, weighted_total, project_match_score, result_json) VALUES (?,?,?,?,?,?,?,?)",
         (
             datetime.now().isoformat(timespec="seconds"),
@@ -62,8 +77,10 @@ def save_evaluation(project_desc: str, expert_bg: str, result: dict, expert_name
             json.dumps(result, ensure_ascii=False),
         ),
     )
+    eval_id = cur.lastrowid
     con.commit()
     con.close()
+    return eval_id
 
 init_db()
 
@@ -256,9 +273,9 @@ async def recommend_weights(req: WeightRecommendRequest):
         f"- id={d.id}，名称={d.name}，当前权重={d.weight}，说明={d.description or '无'}"
         for d in req.dimensions
     )
-    prompt = WEIGHT_PROMPT.format(
-        project_description=req.project_description[:2000],
-        dimensions_spec=dims_spec,
+    prompt = (WEIGHT_PROMPT
+        .replace("{project_description}", req.project_description[:2000])
+        .replace("{dimensions_spec}", dims_spec)
     )
 
     try:
@@ -294,6 +311,177 @@ async def recommend_weights(req: WeightRecommendRequest):
         return JSONResponse(json.loads(match.group()))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"解析失败: {e}")
+
+
+async def _call_ai(client: httpx.AsyncClient, prompt: str, max_tokens: int = 2000) -> str:
+    """统一调用 AI 接口，返回文本内容"""
+    if API_MODE == "openai":
+        resp = await client.post(
+            f"{OPENAI_BASE_URL.rstrip('/')}/chat/completions",
+            json={"model": OPENAI_MODEL, "max_tokens": max_tokens,
+                  "messages": [{"role": "user", "content": prompt}]},
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
+                     "Api-Key": OPENAI_API_KEY, "content-type": "application/json"},
+        )
+    else:
+        resp = await client.post(
+            PROXY_URL,
+            json={"model": PROXY_MODEL, "max_tokens": max_tokens,
+                  "messages": [{"role": "user", "content": prompt}]},
+            headers={"x-api-key": PROXY_API_KEY,
+                     "anthropic-version": "2023-06-01", "content-type": "application/json"},
+        )
+    resp.raise_for_status()
+    data = resp.json()
+    return data["choices"][0]["message"]["content"] if API_MODE == "openai" else data["content"][0]["text"]
+
+
+def _parse_json(content: str) -> dict:
+    match = re.search(r"\{[\s\S]*\}", content)
+    if not match:
+        raise ValueError("未找到JSON内容")
+    return json.loads(match.group())
+
+
+# ── 面试出题 ──
+class GenerateQuestionsRequest(BaseModel):
+    project_description: str
+    expert_background: str = ""
+    expert_name: str = ""
+    resume_eval: dict = {}   # 已有的简历评估结果（用于针对薄弱点出题）
+
+
+QUESTION_GEN_PROMPT = """你是一位专业的招募面试官，需要为以下项目设计一套候选人面试题。
+
+**项目描述：**
+{project_description}
+
+**候选人背景（如有）：**
+{expert_background}
+
+**简历评估结论（如有，用于针对薄弱点出题）：**
+{resume_summary}
+
+请生成 5-7 道面试题，要求：
+1. 覆盖「专业能力验证」「场景判断」「意愿与工作方式」三类题型
+2. 如有简历评估，重点针对薄弱维度出深度验证题
+3. 每题附评分标准（好答案的关键要点），便于运营评判
+4. 题目具体可回答，避免过于笼统
+
+仅输出JSON，不加任何额外文字：
+{{"interview_tips":"<面试注意事项，50字内>","questions":[{{"id":1,"type":"<专业能力|场景判断|意愿了解>","question":"<面试题目>","purpose":"<考察意图，30字内>","scoring_criteria":"<好答案的关键要点，100字内>","follow_up":"<可选追问，30字内>"}}]}}"""
+
+
+@app.post("/api/generate-questions")
+async def generate_questions(req: GenerateQuestionsRequest):
+    if len(req.project_description.strip()) < 10:
+        raise HTTPException(status_code=400, detail="请先填写项目描述")
+
+    resume_summary = ""
+    if req.resume_eval:
+        rec = req.resume_eval.get("recommendation", "")
+        total = req.resume_eval.get("weighted_total", "")
+        reason = req.resume_eval.get("recommendation_reason", "")
+        weak = [s for s in req.resume_eval.get("dimension_scores", []) if s.get("score", 100) < 70]
+        weak_str = "、".join(f"{s['name']}({s['score']}分)" for s in weak)
+        resume_summary = f"综合结论：{rec}（{total}分）\n{reason}\n薄弱维度：{weak_str or '无'}"
+
+    prompt = (QUESTION_GEN_PROMPT
+        .replace("{project_description}", req.project_description[:2000])
+        .replace("{expert_background}", req.expert_background[:3000] if req.expert_background else "（未提供）")
+        .replace("{resume_summary}", resume_summary or "（未提供）")
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=90) as client:
+            content = await _call_ai(client, prompt, 2000)
+        return JSONResponse(_parse_json(content))
+    except httpx.ConnectError:
+        raise HTTPException(status_code=503, detail="无法连接 AI 服务")
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=502, detail=f"AI 服务返回错误: {e.response.status_code}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"出题失败: {e}")
+
+
+# ── 面试评分 ──
+class InterviewEvalRequest(BaseModel):
+    project_description: str
+    expert_name: str = ""
+    questions: List[dict]
+    answers: List[dict]   # [{id, answer}]
+    resume_eval: dict = {}
+
+
+INTERVIEW_EVAL_PROMPT = """你是一位专业面试评委，请对候选人的面试回答进行逐题评分，并给出综合录取建议。
+
+**项目描述：**
+{project_description}
+
+**候选人：** {expert_name}
+
+**简历评估结论：** {resume_summary}
+
+**面试题目与回答：**
+{qa_text}
+
+评分要求：
+- 每题 0-100 分，结合评分标准严格打分
+- 回答完全跑题或空白：0-20分
+- 点到核心要点：60-75分
+- 全面且有深度：85-100分
+- 综合建议需结合简历评估给出最终录取决定
+
+仅输出JSON：
+{{"question_scores":[{{"id":<题号>,"score":<0-100>,"highlight":"<亮点，40字内>","gap":"<不足，40字内>","comment":"<点评，60字内>"}}],"interview_total":<面试平均分，1位小数>,"combined_score":<简历+面试综合分，权重各50%，1位小数>,"final_decision":"<录用|待定|淘汰>","final_reason":"<最终结论，150字内>","next_steps":["<建议的后续行动>"]}}"""
+
+
+@app.post("/api/evaluate-interview")
+async def evaluate_interview(req: InterviewEvalRequest):
+    if not req.questions:
+        raise HTTPException(status_code=400, detail="请先生成面试题")
+    if not req.answers:
+        raise HTTPException(status_code=400, detail="请填写候选人回答")
+
+    resume_summary = ""
+    resume_score = None
+    if req.resume_eval:
+        rec = req.resume_eval.get("recommendation", "")
+        total = req.resume_eval.get("weighted_total")
+        resume_score = total
+        resume_summary = f"{rec}（简历综合分：{total}）\n{req.resume_eval.get('recommendation_reason','')}"
+
+    ans_map = {a["id"]: a["answer"] for a in req.answers}
+    qa_lines = []
+    for q in req.questions:
+        ans = ans_map.get(q["id"], "（未作答）")
+        qa_lines.append(
+            f"Q{q['id']}【{q['type']}】{q['question']}\n"
+            f"评分标准：{q.get('scoring_criteria','')}\n"
+            f"候选人回答：{ans}\n"
+        )
+
+    prompt = (INTERVIEW_EVAL_PROMPT
+        .replace("{project_description}", req.project_description[:1500])
+        .replace("{expert_name}", req.expert_name or "候选人")
+        .replace("{resume_summary}", resume_summary or "（无简历评估）")
+        .replace("{qa_text}", "\n".join(qa_lines))
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=120) as client:
+            content = await _call_ai(client, prompt, 2000)
+        result = _parse_json(content)
+        # 如果没有综合分则用平均
+        if resume_score and "interview_total" in result and "combined_score" not in result:
+            result["combined_score"] = round((float(resume_score) + result["interview_total"]) / 2, 1)
+        return JSONResponse(result)
+    except httpx.ConnectError:
+        raise HTTPException(status_code=503, detail="无法连接 AI 服务")
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=502, detail=f"AI 服务返回错误: {e.response.status_code}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"面试评分失败: {e}")
 
 
 @app.post("/evaluate")
@@ -380,7 +568,8 @@ async def evaluate_expert(req: EvaluateRequest):
     except (KeyError, ZeroDivisionError, TypeError):
         pass
 
-    save_evaluation(req.project_description, req.expert_background, result, req.expert_name)
+    eval_id = save_evaluation(req.project_description, req.expert_background, result, req.expert_name)
+    result["evaluation_id"] = eval_id
     return JSONResponse(result)
 
 
@@ -388,9 +577,14 @@ async def evaluate_expert(req: EvaluateRequest):
 async def get_history():
     con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
-    rows = con.execute(
-        "SELECT id, created_at, expert_name, project_description, expert_background, recommendation, weighted_total, project_match_score FROM evaluations ORDER BY id DESC LIMIT 100"
-    ).fetchall()
+    rows = con.execute("""
+        SELECT e.id, e.created_at, e.expert_name, e.project_description,
+               e.recommendation, e.weighted_total, e.project_match_score,
+               s.token as interview_token, s.status as interview_status
+        FROM evaluations e
+        LEFT JOIN interview_sessions s ON s.eval_id = e.id
+        ORDER BY e.id DESC LIMIT 100
+    """).fetchall()
     con.close()
     return JSONResponse([dict(r) for r in rows])
 
@@ -399,12 +593,22 @@ async def get_history():
 async def get_history_item(eval_id: int):
     con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
-    row = con.execute("SELECT * FROM evaluations WHERE id=?", (eval_id,)).fetchone()
+    row = con.execute("""
+        SELECT e.*, s.token as interview_token, s.status as interview_status,
+               s.interview_result_json
+        FROM evaluations e
+        LEFT JOIN interview_sessions s ON s.eval_id = e.id
+        WHERE e.id=?
+    """, (eval_id,)).fetchone()
     con.close()
     if not row:
         raise HTTPException(status_code=404, detail="记录不存在")
     d = dict(row)
     d["result"] = json.loads(d.pop("result_json"))
+    if d.get("interview_result_json"):
+        d["interview_result"] = json.loads(d.pop("interview_result_json"))
+    else:
+        d.pop("interview_result_json", None)
     return JSONResponse(d)
 
 
@@ -415,6 +619,142 @@ async def delete_history_item(eval_id: int):
     con.commit()
     con.close()
     return JSONResponse({"ok": True})
+
+
+# ── 面试间管理 ──
+
+class CreateInterviewRequest(BaseModel):
+    eval_id: int
+    questions: List[dict]
+
+
+@app.post("/api/create-interview")
+async def create_interview(req: CreateInterviewRequest):
+    token = secrets.token_urlsafe(16)
+    con = sqlite3.connect(DB_PATH)
+    con.execute(
+        "INSERT INTO interview_sessions (token, eval_id, questions_json, created_at) VALUES (?,?,?,?)",
+        (token, req.eval_id, json.dumps(req.questions, ensure_ascii=False),
+         datetime.now().isoformat(timespec="seconds"))
+    )
+    con.commit()
+    con.close()
+    return JSONResponse({"token": token})
+
+
+@app.get("/api/interview/{token}")
+async def get_interview_session(token: str):
+    con = sqlite3.connect(DB_PATH)
+    con.row_factory = sqlite3.Row
+    row = con.execute("""
+        SELECT s.questions_json, s.status, e.project_description, e.expert_name
+        FROM interview_sessions s
+        LEFT JOIN evaluations e ON s.eval_id = e.id
+        WHERE s.token = ?
+    """, (token,)).fetchone()
+    con.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="面试链接无效或已过期")
+    if row["status"] in ("submitted", "scored"):
+        raise HTTPException(status_code=410, detail="该链接已提交，不可重复作答")
+    return JSONResponse({
+        "questions": json.loads(row["questions_json"]),
+        "project_description": row["project_description"],
+        "expert_name": row["expert_name"],
+        "status": row["status"],
+    })
+
+
+class SubmitAnswersRequest(BaseModel):
+    answers: List[dict]  # [{id, answer}]
+
+
+@app.post("/api/interview/{token}/submit")
+async def submit_interview(token: str, req: SubmitAnswersRequest):
+    con = sqlite3.connect(DB_PATH)
+    con.row_factory = sqlite3.Row
+    row = con.execute("SELECT status FROM interview_sessions WHERE token=?", (token,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="面试链接无效")
+    if row["status"] != "pending":
+        raise HTTPException(status_code=410, detail="该链接已提交，不可重复作答")
+    con.execute(
+        "UPDATE interview_sessions SET status='submitted', answers_json=?, submitted_at=? WHERE token=?",
+        (json.dumps(req.answers, ensure_ascii=False),
+         datetime.now().isoformat(timespec="seconds"), token)
+    )
+    con.commit()
+    con.close()
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/interview/{token}/score")
+async def score_interview(token: str):
+    con = sqlite3.connect(DB_PATH)
+    con.row_factory = sqlite3.Row
+    row = con.execute("""
+        SELECT s.*, e.project_description, e.expert_name, e.result_json
+        FROM interview_sessions s
+        LEFT JOIN evaluations e ON s.eval_id = e.id
+        WHERE s.token = ?
+    """, (token,)).fetchone()
+    con.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="面试链接无效")
+    if row["status"] != "submitted":
+        raise HTTPException(status_code=400, detail="候选人尚未提交，无法评分")
+
+    questions = json.loads(row["questions_json"])
+    answers = json.loads(row["answers_json"])
+    resume_eval = json.loads(row["result_json"]) if row["result_json"] else {}
+
+    resume_summary = ""
+    resume_score = None
+    if resume_eval:
+        rec = resume_eval.get("recommendation", "")
+        total = resume_eval.get("weighted_total")
+        resume_score = total
+        resume_summary = f"{rec}（简历综合分：{total}）\n{resume_eval.get('recommendation_reason','')}"
+
+    ans_map = {a["id"]: a["answer"] for a in answers}
+    qa_lines = []
+    for q in questions:
+        ans = ans_map.get(q["id"], "（未作答）")
+        qa_lines.append(
+            f"Q{q['id']}【{q.get('type','')}】{q['question']}\n"
+            f"评分标准：{q.get('scoring_criteria','')}\n"
+            f"候选人回答：{ans}\n"
+        )
+
+    prompt = (INTERVIEW_EVAL_PROMPT
+        .replace("{project_description}", row["project_description"][:1500])
+        .replace("{expert_name}", row["expert_name"] or "候选人")
+        .replace("{resume_summary}", resume_summary or "（无简历评估）")
+        .replace("{qa_text}", "\n".join(qa_lines))
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=120) as client:
+            content = await _call_ai(client, prompt, 2000)
+        result = _parse_json(content)
+        if resume_score and "interview_total" in result and "combined_score" not in result:
+            result["combined_score"] = round((float(resume_score) + result["interview_total"]) / 2, 1)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI评分失败: {e}")
+
+    con = sqlite3.connect(DB_PATH)
+    con.execute(
+        "UPDATE interview_sessions SET status='scored', interview_result_json=? WHERE token=?",
+        (json.dumps(result, ensure_ascii=False), token)
+    )
+    con.commit()
+    con.close()
+    return JSONResponse(result)
+
+
+@app.get("/interview/{token}")
+async def interview_page(token: str):
+    return FileResponse(Path(__file__).parent / "interview.html")
 
 
 if __name__ == "__main__":

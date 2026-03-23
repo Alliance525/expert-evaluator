@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>在线面试</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#f5f7fa;
+  color:#1e293b;
+  min-height:100vh;
+}
+.page{max-width:720px;margin:0 auto;padding:40px 20px 80px;}
+
+/* header */
+.top{text-align:center;margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid #e2e8f0;}
+.logo{display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;}
+.logo-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#009d8e,#00c4b0);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#fff;}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#0f172a;}
+.logo-name span{color:#009d8e;}
+.top h1{font-size:22px;font-weight:700;color:#0f172a;margin-bottom:8px;}
+.top p{font-size:13px;color:#64748b;line-height:1.7;}
+
+/* steps */
+.steps{display:flex;gap:0;justify-content:center;margin-bottom:36px;}
+.step{display:flex;flex-direction:column;align-items:center;gap:5px;opacity:.35;transition:opacity .3s;}
+.step.active{opacity:1;}
+.step.done{opacity:.6;}
+.step-n{width:28px;height:28px;border-radius:50%;border:2px solid #cbd5e1;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#94a3b8;}
+.step.active .step-n{border-color:#009d8e;background:#009d8e;color:#fff;}
+.step.done .step-n{border-color:#009d8e;color:#009d8e;}
+.step-l{font-size:11px;font-weight:600;color:#64748b;white-space:nowrap;}
+.step-line{width:48px;height:2px;background:#e2e8f0;margin:0 6px;align-self:center;margin-bottom:18px;}
+
+/* card */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.card-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:14px;}
+
+/* question card */
+.qcard{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:14px;}
+.qcard-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.qnum{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:#f0fdf9;color:#009d8e;border:1px solid #ccfbf1;padding:2px 8px;border-radius:4px;}
+.qtype{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;}
+.qt-prof{background:#ede9fe;color:#6d28d9;}
+.qt-scene{background:#fef3c7;color:#d97706;}
+.qt-will{background:#d1fae5;color:#059669;}
+.qtext{font-size:14px;color:#0f172a;line-height:1.75;font-weight:500;margin-bottom:14px;}
+.qlabel{font-size:11px;color:#94a3b8;margin-bottom:6px;font-weight:600;letter-spacing:.04em;}
+textarea{
+  width:100%;background:#f8fafc;border:1px solid #e2e8f0;
+  border-radius:8px;padding:12px 14px;
+  font-size:13px;font-family:'DM Sans',sans-serif;color:#1e293b;
+  outline:none;resize:vertical;line-height:1.7;
+  transition:border-color .2s,box-shadow .2s;
+  min-height:100px;
+}
+textarea:focus{border-color:#009d8e;box-shadow:0 0 0 3px rgba(0,157,142,.12);}
+textarea::placeholder{color:#cbd5e1;}
+.char-hint{font-size:11px;color:#cbd5e1;text-align:right;margin-top:4px;font-family:'JetBrains Mono',monospace;}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;border-radius:9px;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .2s;}
+.btn-primary{background:#009d8e;color:#fff;font-size:15px;padding:13px 32px;box-shadow:0 2px 12px rgba(0,157,142,.25);}
+.btn-primary:hover{background:#00b8a6;box-shadow:0 4px 20px rgba(0,157,142,.35);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-ghost{background:#fff;border:1px solid #e2e8f0;color:#64748b;font-size:13px;padding:10px 18px;}
+.btn-ghost:hover{border-color:#94a3b8;color:#1e293b;}
+.action-bar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid #f1f5f9;}
+
+/* states */
+.state{display:none;text-align:center;padding:60px 20px;}
+.state.show{display:block;}
+.state-icon{font-size:48px;margin-bottom:16px;}
+.state-title{font-size:20px;font-weight:700;color:#0f172a;margin-bottom:8px;}
+.state-sub{font-size:14px;color:#64748b;line-height:1.7;max-width:400px;margin:0 auto;}
+
+/* loading */
+.loading{display:none;text-align:center;padding:60px 20px;}
+.loading.show{display:block;}
+.ld-ring{width:44px;height:44px;border-radius:50%;border:3px solid #e2e8f0;border-top-color:#009d8e;animation:spin .8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-txt{font-size:14px;color:#64748b;}
+
+/* warn bar */
+.warn{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:12px;color:#92400e;margin-bottom:20px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top">
+    <div class="logo">
+      <div class="logo-mark">Le</div>
+      <div class="logo-name">Label<span>Ease</span></div>
+    </div>
+    <h1>在线面试</h1>
+    <p>请认真阅读每道题目，结合自身经历和理解作答<br>提交后将无法修改，请确认完成后再点击提交</p>
+  </div>
+
+  <!-- 步骤 -->
+  <div class="steps" id="steps">
+    <div class="step active" id="s1"><div class="step-n">01</div><div class="step-l">作答</div></div>
+    <div class="step-line"></div>
+    <div class="step" id="s2"><div class="step-n">02</div><div class="step-l">提交</div></div>
+  </div>
+
+  <!-- 加载中 -->
+  <div class="loading" id="loadingState">
+    <div class="ld-ring"></div>
+    <div class="ld-txt">加载面试题目中…</div>
+  </div>
+
+  <!-- 错误状态 -->
+  <div class="state" id="errorState">
+    <div class="state-icon">⚠️</div>
+    <div class="state-title" id="errorTitle">链接无效</div>
+    <div class="state-sub" id="errorSub">该面试链接不存在或已失效，请联系招募方重新发送。</div>
+  </div>
+
+  <!-- 已提交状态 -->
+  <div class="state" id="doneState">
+    <div class="state-icon">✅</div>
+    <div class="state-title">提交成功，感谢参与！</div>
+    <div class="state-sub">您的作答已收到，招募团队将尽快与您联系。<br>您可以关闭此页面。</div>
+  </div>
+
+  <!-- 答题区域 -->
+  <div id="quizArea" style="display:none">
+    <div class="warn">📌 本次面试共 <span id="qTotal">0</span> 题，请逐题作答。提交后不可修改，请检查完整后再提交。</div>
+    <div id="questionsList"></div>
+    <div class="action-bar">
+      <button class="btn btn-ghost" onclick="checkAndSubmit(true)">预览检查</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="checkAndSubmit(false)">提交回答 →</button>
+    </div>
+  </div>
+
+  <!-- 提交确认 -->
+  <div id="confirmArea" style="display:none">
+    <div class="card">
+      <div class="card-label">提交前确认</div>
+      <div id="confirmList" style="margin-bottom:16px"></div>
+      <div class="action-bar" style="border-top:none;margin-top:0;padding-top:0">
+        <button class="btn btn-ghost" onclick="backToEdit()">← 继续修改</button>
+        <button class="btn btn-primary" id="confirmBtn" onclick="doSubmit()">确认提交 →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const token = location.pathname.split('/').pop();
+let questions = [];
+
+function qtClass(type) {
+  if (!type) return 'qt-prof';
+  const t = type;
+  if (t.includes('场景')) return 'qt-scene';
+  if (t.includes('意愿')) return 'qt-will';
+  return 'qt-prof';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function load() {
+  document.getElementById('loadingState').classList.add('show');
+  try {
+    const r = await fetch(`/api/interview/${token}`);
+    const data = await r.json();
+    if (!r.ok) {
+      showError(r.status === 410 ? '已完成提交' : '链接无效',
+                data.detail || '该面试链接不存在或已失效，请联系招募方重新发送。');
+      return;
+    }
+    questions = data.questions || [];
+    document.getElementById('qTotal').textContent = questions.length;
+    renderQuestions();
+    document.getElementById('loadingState').classList.remove('show');
+    document.getElementById('quizArea').style.display = 'block';
+  } catch(e) {
+    showError('加载失败', '网络错误，请刷新页面重试。');
+  }
+}
+
+function renderQuestions() {
+  document.getElementById('questionsList').innerHTML = questions.map((q, i) => `
+    <div class="qcard">
+      <div class="qcard-head">
+        <span class="qnum">Q${i+1}</span>
+        <span class="qtype ${qtClass(q.type)}">${esc(q.type||'综合')}</span>
+      </div>
+      <div class="qtext">${esc(q.question)}</div>
+      <div class="qlabel">您的回答</div>
+      <textarea id="a_${q.id}" placeholder="请在此输入您的回答（建议 100 字以上）…"
+        oninput="updateChar(${q.id}, this)"></textarea>
+      <div class="char-hint" id="ch_${q.id}">0 字</div>
+    </div>`).join('');
+}
+
+function updateChar(id, el) {
+  document.getElementById('ch_'+id).textContent = el.value.length + ' 字';
+}
+
+function getAnswers() {
+  return questions.map(q => ({
+    id: q.id,
+    answer: (document.getElementById('a_'+q.id)||{}).value || ''
+  }));
+}
+
+function checkAndSubmit(previewOnly) {
+  const answers = getAnswers();
+  const empty = answers.filter(a => !a.answer.trim());
+
+  if (!previewOnly && empty.length > 0) {
+    if (!confirm(`还有 ${empty.length} 题未作答，确定要提交吗？`)) return;
+  }
+
+  // 显示确认摘要
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('confirmArea').style.display = 'block';
+  document.getElementById('confirmList').innerHTML = answers.map((a, i) => `
+    <div style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+      <div style="font-size:12px;font-weight:700;color:#009d8e;margin-bottom:4px">Q${i+1}. ${esc(questions[i]?.question||'')}</div>
+      <div style="font-size:13px;color:${a.answer.trim()?'#374151':'#f87171'};line-height:1.6">
+        ${a.answer.trim() ? esc(a.answer.trim().slice(0,120)+(a.answer.length>120?'…':'')) : '⚠ 未作答'}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('s1').classList.remove('active');
+  document.getElementById('s1').classList.add('done');
+  document.getElementById('s2').classList.add('active');
+}
+
+function backToEdit() {
+  document.getElementById('confirmArea').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('s1').classList.add('active');
+  document.getElementById('s1').classList.remove('done');
+  document.getElementById('s2').classList.remove('active');
+}
+
+async function doSubmit() {
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.textContent = '提交中…';
+  try {
+    const r = await fetch(`/api/interview/${token}/submit`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({answers: getAnswers()})
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || '提交失败');
+    document.getElementById('confirmArea').style.display = 'none';
+    document.getElementById('doneState').classList.add('show');
+    document.getElementById('steps').style.display = 'none';
+  } catch(e) {
+    alert('提交失败：' + e.message);
+    btn.disabled = false;
+    btn.textContent = '确认提交 →';
+  }
+}
+
+function showError(title, sub) {
+  document.getElementById('loadingState').classList.remove('show');
+  document.getElementById('errorTitle').textContent = title;
+  document.getElementById('errorSub').textContent = sub;
+  document.getElementById('errorState').classList.add('show');
+  document.getElementById('steps').style.display = 'none';
+}
+
+load();
+</script>
+</body>
+</html>

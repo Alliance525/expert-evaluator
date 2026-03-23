@@ -441,6 +441,69 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--wire2);border-radius:3px;}
+
+/* ──── HISTORY ──── */
+.hist-toggle{
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;padding:12px 16px;
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r-lg);margin-bottom:14px;
+  transition:border-color .2s;
+  user-select:none;
+}
+.hist-toggle:hover{border-color:var(--wire2);}
+.hist-toggle-label{
+  font-size:13px;font-weight:600;color:var(--text-mid);
+  flex:1;
+}
+.hist-count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--teal);
+  background:var(--teal-dim);border:1px solid rgba(0,217,192,.2);
+  padding:1px 8px;border-radius:4px;
+}
+.hist-arrow{font-size:12px;color:var(--text-dim);transition:transform .2s;}
+.hist-arrow.open{transform:rotate(180deg);}
+
+.hist-panel{
+  display:none;
+  background:var(--panel);border:1px solid var(--wire);
+  border-radius:var(--r-lg);margin-bottom:20px;
+  overflow:hidden;
+}
+.hist-panel.open{display:block;}
+.hist-empty{padding:24px;text-align:center;font-size:13px;color:var(--text-dim);}
+.hist-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;
+  border-bottom:1px solid var(--wire);
+  cursor:pointer;transition:background .15s;
+}
+.hist-item:last-child{border-bottom:none;}
+.hist-item:hover{background:var(--lift);}
+.hi-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:.05em;
+  padding:2px 7px;border-radius:4px;flex-shrink:0;
+}
+.hi-body{flex:1;min-width:0;}
+.hi-proj{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hi-exp{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.hi-meta{text-align:right;flex-shrink:0;}
+.hi-score{
+  font-family:'JetBrains Mono',monospace;
+  font-size:16px;font-weight:700;line-height:1;
+}
+.hi-time{font-size:10px;color:var(--text-dim);margin-top:3px;font-family:'JetBrains Mono',monospace;}
+.hi-del{
+  width:22px;height:22px;border-radius:5px;border:none;
+  cursor:pointer;font-size:11px;flex-shrink:0;
+  background:rgba(244,63,94,.08);color:#f87171;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;opacity:0;
+}
+.hist-item:hover .hi-del{opacity:1;}
+.hi-del:hover{background:rgba(244,63,94,.2);}
 </style>
 </head>
 <body>
@@ -452,6 +515,18 @@ input[type=range]{width:70px;accent-color:var(--teal);cursor:pointer;border:none
 </header>
 
 <div class="container">
+
+  <!-- 历史记录 -->
+  <div class="hist-toggle" onclick="toggleHist()">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal)">◑</span>
+    <span class="hist-toggle-label">历史评估记录</span>
+    <span class="hist-count" id="histCount">0</span>
+    <span class="hist-arrow" id="histArrow">▾</span>
+  </div>
+  <div class="hist-panel" id="histPanel">
+    <div class="hist-empty" id="histEmpty">暂无历史记录，完成首次评估后将自动保存</div>
+    <div id="histList"></div>
+  </div>
 
   <!-- ① 输入 -->
   <div class="s-head" style="margin-top:0">
@@ -900,7 +975,80 @@ async function uploadPDF(input){
   finally{lbl.childNodes[0].textContent=orig;input.value='';}
 }
 
+// ── 历史记录 ──
+const RC_HIST = {
+  '强推荐':{bg:'rgba(0,217,192,.15)',color:'#00d9c0'},
+  '推荐':  {bg:'rgba(99,102,241,.15)',color:'#818cf8'},
+  '待定':  {bg:'rgba(245,158,11,.15)',color:'#f59e0b'},
+  '不推荐':{bg:'rgba(244,63,94,.15)', color:'#f87171'},
+};
+
+function relTime(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60) return '刚刚';
+  if (diff < 3600) return Math.floor(diff/60) + '分钟前';
+  if (diff < 86400) return Math.floor(diff/3600) + '小时前';
+  if (diff < 86400*7) return Math.floor(diff/86400) + '天前';
+  return iso.slice(0,10);
+}
+
+let histOpen = false;
+function toggleHist() {
+  histOpen = !histOpen;
+  document.getElementById('histPanel').classList.toggle('open', histOpen);
+  document.getElementById('histArrow').classList.toggle('open', histOpen);
+  if (histOpen) loadHistory();
+}
+
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/history');
+    const rows = await r.json();
+    document.getElementById('histCount').textContent = rows.length;
+    const empty = document.getElementById('histEmpty');
+    const list = document.getElementById('histList');
+    if (!rows.length) { empty.style.display='block'; list.innerHTML=''; return; }
+    empty.style.display='none';
+    list.innerHTML = rows.map(row => {
+      const rs = RC_HIST[row.recommendation] || RC_HIST['待定'];
+      const scoreColor = sc(row.weighted_total||0);
+      return `<div class="hist-item" onclick="loadHistItem(${row.id})">
+        <span class="hi-badge" style="background:${rs.bg};color:${rs.color}">${row.recommendation||'—'}</span>
+        <div class="hi-body">
+          <div class="hi-proj">${esc(row.project_description)}</div>
+          <div class="hi-exp">${esc(row.expert_background)}</div>
+        </div>
+        <div class="hi-meta">
+          <div class="hi-score" style="color:${scoreColor}">${row.weighted_total??'—'}</div>
+          <div class="hi-time">${relTime(row.created_at)}</div>
+        </div>
+        <button class="hi-del" onclick="delHistItem(event,${row.id})">✕</button>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function loadHistItem(id) {
+  try {
+    const r = await fetch(`/api/history/${id}`);
+    const data = await r.json();
+    document.getElementById('projectDesc').value = data.project_description;
+    document.getElementById('expertBg').value = data.expert_background;
+    document.getElementById('projCount').textContent = data.project_description.length + ' chars';
+    document.getElementById('expertCount').textContent = data.expert_background.length + ' chars';
+    render(data.result);
+    document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+  } catch(e) { showErr('加载历史记录失败'); }
+}
+
+async function delHistItem(e, id) {
+  e.stopPropagation();
+  await fetch(`/api/history/${id}`, {method:'DELETE'});
+  loadHistory();
+}
+
 initDims();
+loadHistory();
 </script>
 </body>
 </html>

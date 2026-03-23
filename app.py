@@ -7,6 +7,8 @@ import io
 import json
 import os
 import re
+import sqlite3
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -17,6 +19,45 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 
 app = FastAPI(title="专家能力评估平台")
+
+# ── SQLite 历史记录 ──
+DB_PATH = Path(__file__).parent / "history.db"
+
+def init_db():
+    con = sqlite3.connect(DB_PATH)
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS evaluations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at TEXT NOT NULL,
+            project_description TEXT NOT NULL,
+            expert_background TEXT NOT NULL,
+            recommendation TEXT,
+            weighted_total REAL,
+            project_match_score INTEGER,
+            result_json TEXT NOT NULL
+        )
+    """)
+    con.commit()
+    con.close()
+
+def save_evaluation(project_desc: str, expert_bg: str, result: dict):
+    con = sqlite3.connect(DB_PATH)
+    con.execute(
+        "INSERT INTO evaluations (created_at, project_description, expert_background, recommendation, weighted_total, project_match_score, result_json) VALUES (?,?,?,?,?,?,?)",
+        (
+            datetime.now().isoformat(timespec="seconds"),
+            project_desc[:500],
+            expert_bg[:500],
+            result.get("recommendation", ""),
+            result.get("weighted_total"),
+            result.get("project_match", {}).get("score"),
+            json.dumps(result, ensure_ascii=False),
+        ),
+    )
+    con.commit()
+    con.close()
+
+init_db()
 
 # ── API 配置（支持本地代理模式 和 云端直连模式）──
 # API_MODE=proxy  → 调本地 claude-code-proxy（默认）
@@ -237,7 +278,41 @@ async def evaluate_expert(req: EvaluateRequest):
     except (KeyError, ZeroDivisionError, TypeError):
         pass
 
+    save_evaluation(req.project_description, req.expert_background, result)
     return JSONResponse(result)
+
+
+@app.get("/api/history")
+async def get_history():
+    con = sqlite3.connect(DB_PATH)
+    con.row_factory = sqlite3.Row
+    rows = con.execute(
+        "SELECT id, created_at, project_description, expert_background, recommendation, weighted_total, project_match_score FROM evaluations ORDER BY id DESC LIMIT 100"
+    ).fetchall()
+    con.close()
+    return JSONResponse([dict(r) for r in rows])
+
+
+@app.get("/api/history/{eval_id}")
+async def get_history_item(eval_id: int):
+    con = sqlite3.connect(DB_PATH)
+    con.row_factory = sqlite3.Row
+    row = con.execute("SELECT * FROM evaluations WHERE id=?", (eval_id,)).fetchone()
+    con.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="记录不存在")
+    d = dict(row)
+    d["result"] = json.loads(d.pop("result_json"))
+    return JSONResponse(d)
+
+
+@app.delete("/api/history/{eval_id}")
+async def delete_history_item(eval_id: int):
+    con = sqlite3.connect(DB_PATH)
+    con.execute("DELETE FROM evaluations WHERE id=?", (eval_id,))
+    con.commit()
+    con.close()
+    return JSONResponse({"ok": True})
 
 
 if __name__ == "__main__":
